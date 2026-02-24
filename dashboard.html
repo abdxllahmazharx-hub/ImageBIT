@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageBIT AI Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#f9fafb;color:#111827;overflow-x:hidden;position:relative}
+body::before{content:"";position:absolute;width:500px;height:500px;background:radial-gradient(circle,#ff2e8866,transparent 70%);top:-150px;left:-150px;z-index:-1}
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;position:fixed;width:100%;top:0;left:0;z-index:10}
+.plan-badge{background:#ff2e88;color:white;font-weight:700;padding:10px 20px;border-radius:25px;box-shadow:0 5px 15px rgba(255,46,136,0.3)}
+.credits-info{display:flex;align-items:center;gap:15px}
+.credits-info span{font-weight:600}
+.credits-info button{background:#ff2e88;color:white;border:none;padding:10px 18px;border-radius:25px;cursor:pointer;font-weight:600;box-shadow:0 5px 15px rgba(255,46,136,0.3);transition:0.3s}
+.credits-info button:hover{transform:translateY(-2px)}
+.generator{display:flex;flex-direction:column;align-items:center;margin:120px auto 60px;max-width:700px;gap:25px}
+.generator h1{font-size:48px;font-weight:800}
+.generator input{width:100%;padding:14px 20px;border-radius:30px;border:2px solid #e5e7eb;font-size:18px;outline:none;transition:0.3s}
+.generator input:focus{border-color:#ff2e88}
+.generator button{background:#ff2e88;color:white;padding:14px 30px;border:none;border-radius:30px;font-weight:600;cursor:pointer;box-shadow:0 12px 25px rgba(255,46,136,0.4);transition:0.3s}
+.generator button:hover{transform:translateY(-3px)}
+.output{width:100%;max-width:500px;height:400px;border:2px dashed #e5e7eb;border-radius:25px;margin-top:30px;display:flex;justify-content:center;align-items:center;background:white;box-shadow:0 15px 30px rgba(0,0,0,0.05);overflow:hidden}
+.output img{max-width:100%;max-height:100%;border-radius:25px;display:none}
+.output span{color:#6b7280;font-size:18px;text-align:center}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:100}
+.modal{background:white;border-radius:25px;padding:30px;max-width:500px;width:90%;box-shadow:0 20px 50px rgba(0,0,0,0.2);text-align:center}
+.modal h3{font-size:26px;margin-bottom:20px;color:#111827}
+.modal .option{margin:15px 0;padding:12px 20px;border-radius:25px;border:2px solid #e5e7eb;cursor:pointer;font-weight:600;transition:0.3s}
+.modal .option:hover{background:#ff2e88;color:white;border-color:#ff2e88}
+.modal .close{margin-top:20px;background:#6b7280;padding:10px 20px;border-radius:20px;color:white;cursor:pointer;font-weight:600}
+@media(max-width:900px){.generator h1{font-size:36px}.generator input{font-size:16px}.plan-badge{padding:8px 15px;font-size:14px}.credits-info span{font-size:16px}}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="plan-badge" id="plan-badge">Free Plan</div>
+  <div class="credits-info">
+    <span id="credits">Credits: 0</span>
+    <button onclick="showBuyCredits()">Buy More</button>
+  </div>
+</div>
+
+<section class="generator">
+  <h1>Generate AI Images</h1>
+  <input type="text" id="prompt" placeholder="Describe the image you want...">
+  <button onclick="generateImage()">Generate</button>
+  <div class="output">
+    <span id="placeholder-text">Your generated image will appear here</span>
+    <img id="result" alt="Generated Image">
+  </div>
+</section>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Buy Credits / Subscription</h3>
+    <div class="option" onclick="buyCredits(10,0.99)">10 Credits - $0.99</div>
+    <div class="option" onclick="buyCredits(50,2.99)">50 Credits - $2.99 (Mega Offer)</div>
+    <div class="option" onclick="buyCredits(100,5.99)">100 Credits - $5.99</div>
+    <div class="option" onclick="subscribe('Pro',4.99)">Pro Plan - $4.99/Month</div>
+    <div class="option" onclick="subscribe('Premium',15.99)">Premium - $15.99/Month</div>
+    <div class="close" onclick="closeModal()">Cancel</div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
+  authDomain: "imagebit-8fe75.firebaseapp.com",
+  projectId: "imagebit-8fe75",
+  storageBucket: "imagebit-8fe75.appspot.com",
+  messagingSenderId: "326104098599",
+  appId: "1:326104098599:web:f2d3447a6211f2104e6b02",
+  measurementId: "G-4L17LE3VH8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const creditsSpan = document.getElementById('credits');
+const planBadge = document.getElementById('plan-badge');
+
+onAuthStateChanged(auth, async (user)=>{
+  if(!user){window.location.href="login.html"; return;}
+  const userRef = doc(db,"users",user.uid);
+  const userSnap = await getDoc(userRef);
+  if(userSnap.exists()){
+    const data = userSnap.data();
+    creditsSpan.innerText = `Credits: ${data.credits}`;
+    planBadge.innerText = `${data.plan} Plan`;
+  } else {
+    creditsSpan.innerText = `Credits: 5`;
+    planBadge.innerText = `Free Plan`;
+  }
+});
+
+function generateImage(){
+  const prompt = document.getElementById('prompt').value;
+  if(!prompt){alert('Enter a prompt'); return;}
+  const img = document.getElementById('result');
+  img.src = "https://picsum.photos/500/600?random=" + Math.floor(Math.random()*1000);
+  img.style.display = "block";
+  document.getElementById('placeholder-text').style.display = "none";
+  alert('Image generated for prompt: ' + prompt);
+}
+
+function showBuyCredits(){document.getElementById('modal').style.display='flex'}
+function closeModal(){document.getElementById('modal').style.display='none'}
+function buyCredits(amount, price){alert(`You selected ${amount} credits for $${price}.`); closeModal();}
+function subscribe(plan, price){alert(`You selected ${plan} plan for $${price}/month.`); closeModal();}
+</script>
+
+</body>
+</html>
