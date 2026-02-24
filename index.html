@@ -12,9 +12,15 @@ body{background:#f9fafb;color:#111827;overflow-x:hidden}
 .nav{display:flex;justify-content:space-between;align-items:center;padding:25px 60px;background:rgba(255,255,255,0.7);backdrop-filter:blur(15px)}
 .logo{font-weight:800;font-size:22px}
 .logo span{color:#ff2e88}
-.nav button{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-weight:600;background:none}
-.signup{background:#000000;color:white;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
-/* Hero */
+/* Make all buttons look good */
+.nav button{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-weight:600;transition:0.3s;}
+.nav button:hover{transform:translateY(-2px)}
+/* Fix signup button to solid black */
+.signup{
+    background:#000000 !important;  /* solid black */
+    color:white !important;
+    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
 .hero{display:flex;align-items:center;justify-content:space-between;padding:100px 60px;gap:50px}
 .left{flex:1}
 .left h1{font-size:60px;line-height:1.1;font-weight:800}
