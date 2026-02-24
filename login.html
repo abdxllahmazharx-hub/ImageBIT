@@ -1,102 +1,175 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login | ImageBIT AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>ImageBIT AI - Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#f9fafb;color:#111827;display:flex;justify-content:center;align-items:center;height:100vh}
-.container{background:white;padding:40px;border-radius:25px;box-shadow:0 20px 50px rgba(0,0,0,0.1);width:90%;max-width:400px;text-align:center}
-.container h1{font-size:32px;font-weight:800;margin-bottom:20px;color:#111827}
-.container input{width:100%;padding:12px 18px;margin:10px 0;border:2px solid #e5e7eb;border-radius:25px;font-size:16px;outline:none;transition:0.3s}
-.container input:focus{border-color:#ff2e88}
-.container button{width:100%;padding:12px 0;margin-top:10px;border:none;border-radius:25px;font-weight:600;font-size:16px;color:white;background:#ff2e88;cursor:pointer;box-shadow:0 10px 25px rgba(255,46,136,0.3);transition:0.3s}
-.container button:hover{transform:translateY(-2px)}
-.google-btn{background:#4285F4;margin-top:10px}
-.create-btn{background:#6b7280;margin-top:10px}
+body {
+    background: #F8F9FA;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background: #FFFFFF;
+    padding: 50px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-container h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #212121;
+    margin-bottom: 30px;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.login-container input:focus {
+    border-color: #B0B0B0;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+
+.login-btn {
+    background: #000000;
+    color: #FFFFFF;
+}
+
+.login-btn:hover {
+    background: #222222;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.google-btn {
+    background: #F1F3F4;
+    color: #202124;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+.google-btn:hover {
+    background: #E0E2E3;
+}
+
+.create-account {
+    font-size: 14px;
+    color: #6C757D;
+    cursor: pointer;
+    display: block;
+    margin-top: 15px;
+    text-decoration: none;
+}
+
+.create-account:hover {
+    text-decoration: underline;
+}
+
+.warning {
+    font-size: 13px;
+    color: #6C757D;
+    margin-top: 10px;
+}
 </style>
 </head>
 <body>
 
-<div class="container">
-  <h1>Login to ImageBIT AI</h1>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button id="login-btn">Login</button>
-  <button class="google-btn" id="google-btn">Sign in with Google</button>
-  <button class="create-btn" id="create-btn">Create Account</button>
+<div class="login-container">
+    <h1>Welcome Back</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button class="login-btn" onclick="loginWithEmail()">Login</button>
+    <button class="google-btn" onclick="loginWithGoogle()">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
+        Sign in with Google
+    </button>
+    <a class="create-account" href="signup.html">Create Account</a>
+    <div class="warning" id="verification-warning"></div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
 
-// 🔥 REPLACE WITH YOUR FIREBASE CONFIG 🔥
 const firebaseConfig = {
-  apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
-  authDomain: "imagebit-8fe75.firebaseapp.com",
-  projectId: "imagebit-8fe75",
-  storageBucket: "imagebit-8fe75.appspot.com",
-  messagingSenderId: "326104098599",
-  appId: "1:326104098599:web:f2d3447a6211f2104e6b02",
-  measurementId: "G-4L17LE3VH8"
+    apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
+    authDomain: "imagebit-8fe75.firebaseapp.com",
+    projectId: "imagebit-8fe75",
+    storageBucket: "imagebit-8fe75.appspot.com",
+    messagingSenderId: "326104098599",
+    appId: "1:326104098599:web:f2d3447a6211f2104e6b02"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
-
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('login-btn');
-const googleBtn = document.getElementById('google-btn');
-const createBtn = document.getElementById('create-btn');
+const provider = new GoogleAuthProvider();
 
 // Email/password login
-loginBtn.addEventListener('click', ()=>{
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  if(!email || !password){alert('Enter email & password'); return;}
-  signInWithEmailAndPassword(auth,email,password)
-    .then((cred)=>{
-      if(!cred.user.emailVerified){
-        alert("Please verify your email first. WARN: Check SPAM folder if you don't see it.");
-        return;
-      }
-      window.location.href="dashboard.html";
-    })
-    .catch(err=>alert(err.message));
-});
+window.loginWithEmail = function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    if(!email || !password) return alert("Enter email and password");
+
+    signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            const user = userCredential.user;
+            if(!user.emailVerified){
+                sendEmailVerification(user).then(() => {
+                    document.getElementById("verification-warning").innerText = "Verification link sent! ⚠️ Check SPAM folder too.";
+                });
+            } else {
+                window.location.href = "dashboard.html";
+            }
+        })
+        .catch(error => alert(error.message));
+}
 
 // Google login
-googleBtn.addEventListener('click', ()=>{
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(auth,provider)
-    .then(()=>{window.location.href="dashboard.html"})
-    .catch(err=>alert(err.message));
-});
-
-// Create account with email/password + send verification
-createBtn.addEventListener('click', ()=>{
-  const email = emailInput.value;
-  const password = passwordInput.value;
-  if(!email || !password){alert('Enter email & password'); return;}
-  createUserWithEmailAndPassword(auth,email,password)
-    .then(async (cred)=>{
-      // Send verification email
-      await sendEmailVerification(cred.user);
-      alert("Verification email sent! WARN: Check SPAM folder if not received.");
-      // Create Firestore record
-      await setDoc(doc(db,"users",cred.user.uid),{
-        credits: 5,
-        plan: "Free"
-      });
-    })
-    .catch(err=>alert(err.message));
-});
+window.loginWithGoogle = function() {
+    signInWithPopup(auth, provider)
+        .then(result => {
+            window.location.href = "dashboard.html";
+        })
+        .catch(error => alert(error.message));
+}
 </script>
+
 </body>
 </html>
