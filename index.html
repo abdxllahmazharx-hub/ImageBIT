@@ -8,32 +8,75 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
 body{background:#f9fafb;color:#111827;overflow-x:hidden}
+
 /* Navbar */
-.nav{display:flex;justify-content:space-between;align-items:center;padding:25px 60px;background:rgba(255,255,255,0.7);backdrop-filter:blur(15px)}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:25px 60px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(15px)
+}
+
 .logo{font-weight:800;font-size:22px}
 .logo span{color:#ff2e88}
-/* Make all buttons look good */
-.nav button{padding:10px 18px;border-radius:25px;border:none;cursor:pointer;font-weight:600;transition:0.3s;}
-.nav button:hover{transform:translateY(-2px)}
-/* Fix signup button to solid black */
-.signup{
-    background:#000000 !important;  /* solid black */
-    color:white !important;
-    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+
+.nav button{
+  padding:10px 18px;
+  border-radius:25px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  background:none;
+  color:#111827;   /* force visible text */
 }
+
+/* ONLY change: make signup text solid black */
+.signup{
+  color:#000000 !important;
+}
+
+/* Hero */
 .hero{display:flex;align-items:center;justify-content:space-between;padding:100px 60px;gap:50px}
 .left{flex:1}
 .left h1{font-size:60px;line-height:1.1;font-weight:800}
 .left p{margin-top:20px;font-size:18px;color:#6b7280;max-width:500px}
 .buttons{margin-top:30px;display:flex;gap:15px}
-.primary{background:#ff2e88;color:white;padding:14px 30px;border:none;border-radius:30px;font-weight:600;cursor:pointer;box-shadow:0 15px 30px rgba(255,46,136,0.4);transition:0.3s}
+
+.primary{
+  background:#ff2e88;
+  color:white;
+  padding:14px 30px;
+  border:none;
+  border-radius:30px;
+  font-weight:600;
+  cursor:pointer;
+  box-shadow:0 15px 30px rgba(255,46,136,0.4);
+  transition:0.3s
+}
 .primary:hover{transform:translateY(-4px)}
-.secondary{background:white;color:#111827;padding:14px 30px;border-radius:30px;border:2px solid #e5e7eb;font-weight:600;cursor:pointer;transition:0.3s}
+
+.secondary{
+  background:white;
+  color:#111827;
+  padding:14px 30px;
+  border-radius:30px;
+  border:2px solid #e5e7eb;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s
+}
 .secondary:hover{background:#f3f4f6}
+
 .right{flex:1;display:flex;justify-content:center}
 .right img{width:100%;max-width:520px;border-radius:25px;box-shadow:0 25px 50px rgba(0,0,0,0.15)}
-/* Responsive */
-@media(max-width:900px){.hero{flex-direction:column;text-align:center}.left h1{font-size:40px}.buttons{justify-content:center}}
+
+@media(max-width:900px){
+  .hero{flex-direction:column;text-align:center}
+  .left h1{font-size:40px}
+  .buttons{justify-content:center}
+}
 </style>
 </head>
 <body>
