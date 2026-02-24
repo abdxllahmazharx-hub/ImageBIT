@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageBIT AI - Signup</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+    background: #F8F9FA;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.signup-container {
+    background: #FFFFFF;
+    padding: 50px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+}
+.signup-container h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #212121;
+    margin-bottom: 30px;
+}
+.signup-container input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+.signup-container input:focus {
+    border-color: #B0B0B0;
+    box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+.signup-btn {
+    width: 100%;
+    padding: 12px;
+    background: #000000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-bottom: 15px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.signup-btn:hover {
+    background: #222222;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+.create-account {
+    font-size: 14px;
+    color: #6C757D;
+    cursor: pointer;
+    display: block;
+    margin-top: 10px;
+    text-decoration: none;
+}
+.create-account:hover {
+    text-decoration: underline;
+}
+.warning {
+    font-size: 13px;
+    color: #6C757D;
+    margin-top: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h1>Create Account</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <input type="password" id="confirm-password" placeholder="Confirm Password">
+    <button class="signup-btn" onclick="signup()">Sign Up</button>
+    <a class="create-account" href="login.html">Back to Login</a>
+    <div class="warning" id="signup-warning"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
+    authDomain: "imagebit-8fe75.firebaseapp.com",
+    projectId: "imagebit-8fe75",
+    storageBucket: "imagebit-8fe75.appspot.com",
+    messagingSenderId: "326104098599",
+    appId: "1:326104098599:web:f2d3447a6211f2104e6b02"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.signup = function() {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm-password").value;
+
+    if (!email || !password || !confirm) {
+        return alert("Please fill all fields");
+    }
+    if (password !== confirm) {
+        return alert("Passwords do not match");
+    }
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+            const user = userCredential.user;
+            sendEmailVerification(user).then(() => {
+                document.getElementById("signup-warning").innerText = "Verification email sent! ⚠️ Check SPAM folder too.";
+            });
+        })
+        .catch(error => alert(error.message));
+}
+</script>
+
+</body>
+</html>
