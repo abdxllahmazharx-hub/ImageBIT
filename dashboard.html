@@ -19,6 +19,7 @@ body::before{content:"";position:absolute;width:500px;height:500px;background:ra
 .generator h1{font-size:48px;font-weight:800}
 .generator input{width:100%;padding:14px 20px;border-radius:30px;border:2px solid #e5e7eb;font-size:18px;outline:none;transition:0.3s}
 .generator input:focus{border-color:#ff2e88}
+.generator select{width:100%;padding:12px 20px;border-radius:25px;border:2px solid #e5e7eb;font-size:16px;outline:none;margin-bottom:10px}
 .generator button{background:#ff2e88;color:white;padding:14px 30px;border:none;border-radius:30px;font-weight:600;cursor:pointer;box-shadow:0 12px 25px rgba(255,46,136,0.4);transition:0.3s}
 .generator button:hover{transform:translateY(-3px)}
 .output{width:100%;max-width:500px;height:400px;border:2px dashed #e5e7eb;border-radius:25px;margin-top:30px;display:flex;justify-content:center;align-items:center;background:white;box-shadow:0 15px 30px rgba(0,0,0,0.05);overflow:hidden}
@@ -46,6 +47,10 @@ body::before{content:"";position:absolute;width:500px;height:500px;background:ra
 <section class="generator">
   <h1>Generate AI Images</h1>
   <input type="text" id="prompt" placeholder="Describe the image you want...">
+  <select id="resolution">
+    <option value="5">Normal Image (5 credits)</option>
+    <option value="10">4K Image (10 credits)</option>
+  </select>
   <button onclick="generateImage()">Generate</button>
   <div class="output">
     <span id="placeholder-text">Your generated image will appear here</span>
@@ -68,7 +73,7 @@ body::before{content:"";position:absolute;width:500px;height:500px;background:ra
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -87,28 +92,46 @@ const db = getFirestore(app);
 const creditsSpan = document.getElementById('credits');
 const planBadge = document.getElementById('plan-badge');
 
-onAuthStateChanged(auth, async (user)=>{
-  if(!user){window.location.href="login.html"; return;}
-  const userRef = doc(db,"users",user.uid);
+onAuthStateChanged(auth, async (user) => {
+  if(!user){ window.location.href="login.html"; return; }
+
+  const userRef = doc(db, "users", user.uid);
   const userSnap = await getDoc(userRef);
+
   if(userSnap.exists()){
     const data = userSnap.data();
     creditsSpan.innerText = `Credits: ${data.credits}`;
     planBadge.innerText = `${data.plan} Plan`;
   } else {
-    creditsSpan.innerText = `Credits: 5`;
+    await setDoc(userRef, { credits: 30, plan: "Free" });
+    creditsSpan.innerText = `Credits: 30`;
     planBadge.innerText = `Free Plan`;
   }
 });
 
-function generateImage(){
+async function generateImage() {
   const prompt = document.getElementById('prompt').value;
-  if(!prompt){alert('Enter a prompt'); return;}
+  if(!prompt){ alert('Enter a prompt'); return; }
+
+  const user = auth.currentUser;
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+  let credits = userSnap.exists() ? userSnap.data().credits : 30;
+
+  const cost = parseInt(document.getElementById('resolution').value);
+  if(credits < cost){ alert("Not enough credits!"); return; }
+
+  // Temporary placeholder image (replace with real AI API)
   const img = document.getElementById('result');
   img.src = "https://picsum.photos/500/600?random=" + Math.floor(Math.random()*1000);
   img.style.display = "block";
   document.getElementById('placeholder-text').style.display = "none";
-  alert('Image generated for prompt: ' + prompt);
+
+  // Deduct credits
+  await updateDoc(userRef, { credits: credits - cost });
+  creditsSpan.innerText = `Credits: ${credits - cost}`;
+
+  alert(`Image generated! Cost: ${cost} credits`);
 }
 
 function showBuyCredits(){document.getElementById('modal').style.display='flex'}
