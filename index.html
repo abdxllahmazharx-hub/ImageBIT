@@ -5,9 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ImageBIT AI</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#f9fafb;color:#111827;overflow-x:hidden}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:'Inter',sans-serif;
+  transition:background 0.3s,color 0.3s;
+}
+
+/* DEFAULT = LIGHT THEME */
+body{
+  --bg:#f4f6f9;
+  --text:#111827;
+  --sub:#6b7280;
+  --card:rgba(255,255,255,0.7);
+  --border:rgba(0,0,0,0.08);
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+/* DARK MODE */
+body.dark{
+  --bg:#0f172a;
+  --text:#ffffff;
+  --sub:#94a3b8;
+  --card:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.1);
+}
 
 /* Navbar */
 .nav{
@@ -15,12 +42,25 @@ body{background:#f9fafb;color:#111827;overflow-x:hidden}
   justify-content:space-between;
   align-items:center;
   padding:25px 60px;
-  background:rgba(255,255,255,0.7);
-  backdrop-filter:blur(15px)
+  background:var(--card);
+  backdrop-filter:blur(15px);
+  border-bottom:1px solid var(--border);
 }
 
-.logo{font-weight:800;font-size:22px}
-.logo span{color:#ff2e88}
+.logo{
+  font-weight:800;
+  font-size:22px;
+}
+
+.logo span{
+  color:#ff2e88;
+}
+
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
 
 .nav button{
   padding:10px 18px;
@@ -29,53 +69,110 @@ body{background:#f9fafb;color:#111827;overflow-x:hidden}
   cursor:pointer;
   font-weight:600;
   background:none;
-  color:#111827;   /* force visible text */
+  color:var(--text); /* dynamic color */
 }
 
-/* ONLY change: make signup text solid black */
+/* Sign Up button (outlined style) */
 .signup{
-  color:#000000 !important;
+  border:2px solid #ff2e88;
+  background:transparent;
+  color:var(--text);
+}
+
+.signup:hover{
+  background:#ff2e88;
+  color:white;
+}
+
+/* Theme Toggle */
+.theme-toggle{
+  font-size:20px;
+  cursor:pointer;
+  padding:8px 12px;
+  border-radius:50%;
+  background:var(--card);
+  border:1px solid var(--border);
 }
 
 /* Hero */
-.hero{display:flex;align-items:center;justify-content:space-between;padding:100px 60px;gap:50px}
-.left{flex:1}
-.left h1{font-size:60px;line-height:1.1;font-weight:800}
-.left p{margin-top:20px;font-size:18px;color:#6b7280;max-width:500px}
-.buttons{margin-top:30px;display:flex;gap:15px}
+.hero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:100px 60px;
+  gap:60px;
+}
+
+.left{
+  flex:1;
+}
+
+.left h1{
+  font-size:60px;
+  line-height:1.1;
+  font-weight:800;
+}
+
+.left p{
+  margin-top:20px;
+  font-size:18px;
+  color:var(--sub);
+  max-width:500px;
+}
+
+.buttons{
+  margin-top:35px;
+  display:flex;
+  gap:18px;
+}
 
 .primary{
   background:#ff2e88;
   color:white;
-  padding:14px 30px;
+  padding:15px 35px;
   border:none;
   border-radius:30px;
   font-weight:600;
   cursor:pointer;
-  box-shadow:0 15px 30px rgba(255,46,136,0.4);
-  transition:0.3s
+  box-shadow:0 15px 35px rgba(255,46,136,0.5);
 }
-.primary:hover{transform:translateY(-4px)}
 
 .secondary{
-  background:white;
-  color:#111827;
-  padding:14px 30px;
+  background:var(--card);
+  color:var(--text);
+  padding:15px 35px;
   border-radius:30px;
-  border:2px solid #e5e7eb;
+  border:1px solid var(--border);
   font-weight:600;
   cursor:pointer;
-  transition:0.3s
 }
-.secondary:hover{background:#f3f4f6}
 
-.right{flex:1;display:flex;justify-content:center}
-.right img{width:100%;max-width:520px;border-radius:25px;box-shadow:0 25px 50px rgba(0,0,0,0.15)}
+/* Image */
+.right{
+  flex:1;
+  display:flex;
+  justify-content:center;
+}
 
+.right img{
+  width:100%;
+  max-width:520px;
+  border-radius:25px;
+  box-shadow:0 30px 60px rgba(0,0,0,0.2);
+}
+
+/* Responsive */
 @media(max-width:900px){
-  .hero{flex-direction:column;text-align:center}
-  .left h1{font-size:40px}
-  .buttons{justify-content:center}
+  .hero{
+    flex-direction:column;
+    text-align:center;
+  }
+  .left h1{
+    font-size:40px;
+  }
+  .buttons{
+    justify-content:center;
+  }
 }
 </style>
 </head>
@@ -83,29 +180,52 @@ body{background:#f9fafb;color:#111827;overflow-x:hidden}
 
 <div class="nav">
   <div class="logo">Image<span>BIT</span> AI</div>
-  <div>
+  <div class="nav-right">
     <button onclick="goLogin()">Login</button>
     <button class="signup" onclick="goLogin()">Sign Up</button>
+    <div class="theme-toggle" onclick="toggleTheme()" id="themeIcon">🌙</div>
   </div>
 </div>
 
 <section class="hero">
   <div class="left">
-    <h1>ImageBIT AI</h1>
-    <p>Generate amazing AI images instantly. No complicated tools. Just describe & create!</p>
+    <h1>Create Stunning AI Images</h1>
+    <p>Generate powerful AI visuals in seconds. Just describe your idea and let ImageBIT bring it to life.</p>
     <div class="buttons">
       <button class="primary" onclick="goLogin()">Try Now</button>
       <button class="secondary">View Demo</button>
     </div>
   </div>
   <div class="right">
-    <img src="https://picsum.photos/800/1000" alt="Demo Photo">
+    <img src="bgping.png" alt="AI Preview">
   </div>
 </section>
 
 <script>
 function goLogin(){
   window.location.href="login.html";
+}
+
+function toggleTheme(){
+  document.body.classList.toggle("dark");
+  const icon = document.getElementById("themeIcon");
+
+  if(document.body.classList.contains("dark")){
+    icon.textContent="☀️";
+    localStorage.setItem("theme","dark");
+  }else{
+    icon.textContent="🌙";
+    localStorage.setItem("theme","light");
+  }
+}
+
+/* Load saved theme */
+window.onload=function(){
+  const savedTheme = localStorage.getItem("theme");
+  if(savedTheme==="dark"){
+    document.body.classList.add("dark");
+    document.getElementById("themeIcon").textContent="☀️";
+  }
 }
 </script>
 
