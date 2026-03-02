@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | v4 PRO</title>
+    <title>ImageBIT AI | v4.1 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.95); --gold: #ffd700; }
+        :root { --primary: #ff2e88; --accent: #00d2ff; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.95); --gold: #ffd700; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: #1e293b; overflow-x: hidden; padding-bottom: 90px; }
 
@@ -18,16 +18,11 @@
         .pro-label { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 800; }
         
         .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1100; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
-        .gift-trigger:hover { transform: scale(1.1); }
-
-        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 100px 20px; border-right: 1px solid #e2e8f0; }
+        
+        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s; padding: 100px 20px; border-right: 1px solid #e2e8f0; }
         .sidebar.open { left: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1001; display: none; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
-
-        .reward-card { background: linear-gradient(145deg, #ffffff, #fff5f9); padding: 30px 20px; border-radius: 30px; text-align: center; border: 1px solid #ffebf3; box-shadow: 0 20px 40px rgba(255, 46, 136, 0.1); }
-        .reward-pop { animation: rewardClaimed 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes rewardClaimed { 0% { transform: scale(1); } 50% { transform: scale(1.1); background: #f0fdf4; } 100% { transform: scale(1); } }
 
         .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 30px; border-radius: 30px; display: flex; gap: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 1000; border: 1px solid #e2e8f0; }
         .nav-item { cursor: pointer; font-size: 22px; opacity: 0.3; transition: 0.3s; filter: grayscale(1); }
@@ -37,119 +32,99 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .btn-gen, .btn-claim { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; position: relative; }
+        .btn-gen { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; }
+        .btn-gen:disabled { background: #94a3b8; }
 
-        .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
+        /* --- LOADING BAR --- */
+        .loading-wrap { width: 100%; margin-top: 20px; display: none; }
+        .bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 8px; }
+        .bar-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: 0.4s; }
+
+        .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; position: relative; }
         #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* --- GALLERY & BEST CREATION --- */
-        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; border: 1px solid #e2e8f0; }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .featured-item { grid-column: span 2; aspect-ratio: 16/9; border: 3px solid var(--gold); animation: bestGlow 3s infinite alternate; }
-        @keyframes bestGlow { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 20px var(--primary); } }
-        .share-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; }
-
-        /* --- CHAT & LEADERBOARD GRID --- */
+        /* --- SOCIAL GRID --- */
         .social-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
         @media (max-width: 768px) { .social-layout { grid-template-columns: 1fr; } .leaderboard-card { display: none; } }
-
+        
         .chat-container { background: white; border-radius: 24px; border: 1px solid #e2e8f0; height: 60vh; display: flex; flex-direction: column; overflow: hidden; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
-        .msg-bubble { display: flex; gap: 10px; align-items: flex-start; max-width: 90%; }
-        .msg-content { background: #f1f5f9; padding: 10px 14px; border-radius: 18px; border-top-left-radius: 2px; }
-        .msg-user { font-size: 10px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 2px; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 8px; }
-        #chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 12px; outline: none; }
-
+        .msg-bubble { display: flex; gap: 10px; max-width: 90%; }
+        .msg-content { background: #f1f5f9; padding: 10px 14px; border-radius: 18px; border-top-left-radius: 2px; font-size: 14px; }
+        
         .leaderboard-card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 20px; height: 60vh; overflow-y: auto; }
-        .leader-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
-        .leader-rank { font-weight: 900; color: var(--primary); width: 25px; font-size: 0.8rem; }
-        .leader-name { flex: 1; font-weight: 700; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .leader-score { font-size: 10px; background: #fff1f6; color: var(--primary); padding: 2px 8px; border-radius: 8px; font-weight: 800; }
+        .leader-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
 
-        /* --- ONBOARDING --- */
-        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 5000; display: none; align-items: center; justify-content: center; }
-        .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; }
-        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; transition: 0.3s; object-fit: cover; }
-        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 46, 136, 0.3); }
-        .add-pfp-btn { display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 24px; color: #64748b; border: 3px dashed #cbd5e1; }
+        #onboarding-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .setup-card { background: white; width: 90%; max-width: 400px; padding: 40px; border-radius: 32px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="onboarding-overlay">
     <div class="setup-card">
-        <h2 style="font-weight: 800; font-size: 1.5rem;">Welcome to ImageBIT! 🚀</h2>
-        <div class="avatar-grid" id="avatar-container">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <div class="avatar-option add-pfp-btn" onclick="document.getElementById('custom-pfp-input').click()">+</div>
+        <h2 style="font-weight: 800;">Create Profile 🚀</h2>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 25px 0;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-option" onclick="selectAvatar(this.src, this)" style="width:100%; border-radius:50%; cursor:pointer; border:3px solid #eee;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="avatar-option" onclick="selectAvatar(this.src, this)" style="width:100%; border-radius:50%; cursor:pointer; border:3px solid #eee;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy" class="avatar-option" onclick="selectAvatar(this.src, this)" style="width:100%; border-radius:50%; cursor:pointer; border:3px solid #eee;">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="avatar-option" onclick="selectAvatar(this.src, this)" style="width:100%; border-radius:50%; cursor:pointer; border:3px solid #eee;">
         </div>
-        <input type="file" id="custom-pfp-input" style="display:none" accept="image/*" onchange="handleCustomPfp(event)">
-        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1.5px solid #e2e8f0; margin-bottom:20px; font-size: 1rem;" placeholder="Enter username">
-        <button class="btn-gen" onclick="saveProfile()">Finish Setup</button>
+        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:20px;" placeholder="Your Name">
+        <button class="btn-gen" onclick="saveProfile()">Start Creating</button>
     </div>
 </div>
 
 <div class="top-bar">
     <div class="user-info">
         <img src="" id="nav-pfp" class="user-pfp">
-        <div>
-            <div class="user-name" id="nav-user-name">Loading...</div>
-            <span class="pro-label">v4 PRO MEMBER</span>
-        </div>
+        <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.1 PRO</span></div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">... Credits</div>
+    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">...</div>
 </div>
 
 <div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
-    <div class="reward-card" id="reward-card-ui">
-        <div id="reward-emoji" style="font-size: 40px; margin-bottom: 10px;">🎁</div>
-        <h2 id="reward-title" style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
-        <div id="timer-display" style="margin: 10px 0; font-size: 12px; color: #64748b;">Checking...</div>
-        <button class="btn-claim" id="claim-btn" onclick="claimReward()">Claim +5 Credits</button>
+    <div class="card" style="text-align:center;">
+        <h2 style="font-weight:800;">Daily Credits</h2>
+        <p id="timer-display" style="font-size:12px; color:#64748b; margin:10px 0;">Checking...</p>
+        <button class="btn-gen" id="claim-btn" onclick="claimReward()">Claim +5</button>
     </div>
 </div>
 
 <div id="create-view" class="view-section active">
     <div class="card">
-        <input type="text" id="p-input" style="width:100%; padding:18px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:20px; outline:none;" placeholder="Describe your image...">
-        <button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
+        <input type="text" id="p-input" style="width:100%; padding:18px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:20px; outline:none;" placeholder="A neon tiger in the rain...">
+        <button class="btn-gen" id="gen-btn" onclick="generate()">Generate Masterpiece (5⚡)</button>
+        
+        <div class="loading-wrap" id="loading-wrap">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; color:var(--accent);">
+                <span>AI IS PAINTING...</span>
+                <span id="load-perc">0%</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
+        </div>
+
         <div class="canvas">
             <img src="" id="out-img">
-            <p id="ph-text" style="color:#94a3b8; font-weight:700;">Ready to Generate</p>
+            <p id="ph-text" style="color:#94a3b8; font-weight:700;">Your Art Will Appear Here</p>
         </div>
     </div>
-</div>
-
-<div id="gallery-view" class="view-section">
-    <h2 style="margin-bottom:20px; font-weight:800;">🖼️ Masterpieces</h2>
-    <div class="gallery-grid" id="user-gallery"></div>
 </div>
 
 <div id="chat-view" class="view-section">
     <div class="social-layout">
         <div class="chat-container">
             <div class="chat-messages" id="chat-display"></div>
-            <div id="share-preview" style="display:none; padding:10px; background:#fff0f6; border-top:2px solid var(--primary);">
-                <span style="font-size:10px; font-weight:800; color:var(--primary);">ATTACHING IMAGE...</span>
-                <button onclick="cancelShare()" style="float:right; border:none; background:none; cursor:pointer;">✕</button>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Say hello...">
+            <div style="padding:15px; border-top:1px solid #eee; display:flex; gap:10px;">
+                <input type="text" id="chat-input" placeholder="Say hello..." style="flex:1; border:1px solid #ddd; padding:10px; border-radius:12px; outline:none;">
                 <button class="btn-gen" style="width:auto; padding:0 20px;" onclick="sendChat()">Send</button>
             </div>
         </div>
         <div class="leaderboard-card">
-            <h3 style="font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 15px; letter-spacing: 1px;">🏆 TOP CREATORS</h3>
+            <h3 style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:15px;">🏆 TOP CREATORS</h3>
             <div id="leaderboard-list"></div>
         </div>
     </div>
@@ -157,14 +132,13 @@
 
 <div class="bottom-nav">
     <div class="nav-item active" id="nav-create" onclick="switchTab('create')">🎨</div>
-    <div class="nav-item" id="nav-gallery" onclick="switchTab('gallery')">🖼️</div>
     <div class="nav-item" id="nav-chat" onclick="switchTab('chat')">💬</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment, serverTimestamp, collection, addDoc, query, where, orderBy, getDocs, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment, serverTimestamp, collection, addDoc, query, orderBy, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -178,9 +152,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null;
-    let selectedPfpUrl = "";
-    let pendingShareUrl = null;
+    let currentUser = null, selectedPfp = "";
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -188,13 +160,10 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             if(snap.exists() && snap.data().displayName) {
                 updateUI(snap.data());
-                checkRewardTimer(snap.data().lastClaimed);
                 document.getElementById('onboarding-overlay').style.display = 'none';
                 initChat();
                 initLeaderboard();
-            } else {
-                document.getElementById('onboarding-overlay').style.display = 'flex';
-            }
+            } else { document.getElementById('onboarding-overlay').style.display = 'flex'; }
         }
     });
 
@@ -208,194 +177,89 @@
         document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
         document.getElementById(tab + '-view').classList.add('active');
         document.getElementById('nav-' + tab).classList.add('active');
-        if(tab === 'gallery') loadGallery();
     };
 
-    // --- LEADERBOARD LOGIC ---
-    function initLeaderboard() {
-        const q = query(collection(db, "users"), orderBy("credits", "desc"), limit(10));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = "";
-            let rank = 1;
-            snap.forEach(doc => {
-                const u = doc.data();
-                list.innerHTML += `
-                <div class="leader-item">
-                    <span class="leader-rank">#${rank++}</span>
-                    <img src="${u.pfp}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
-                    <div class="leader-name">${u.displayName}</div>
-                    <div class="leader-score">${u.credits}⚡</div>
-                </div>`;
-            });
-        });
-    }
+    window.generate = async () => {
+        const p = document.getElementById('p-input').value.trim();
+        if(!p) return;
+        
+        const btn = document.getElementById('gen-btn');
+        const loadWrap = document.getElementById('loading-wrap');
+        const bar = document.getElementById('bar-fill');
+        const percText = document.getElementById('load-perc');
+        const img = document.getElementById('out-img');
 
-    // --- CHAT LOGIC ---
+        btn.disabled = true;
+        loadWrap.style.display = "block";
+        img.style.display = "none";
+        document.getElementById('ph-text').style.display = "none";
+
+        let progress = 0;
+        const timer = setInterval(() => {
+            progress += Math.random() * 5;
+            if(progress > 98) progress = 98;
+            bar.style.width = progress + "%";
+            percText.innerText = Math.floor(progress) + "%";
+        }, 400);
+
+        // THE NEW HIGH-QUALITY ENGINE (FLUX VIA CLOUDFLARE)
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?model=flux-realism&width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random()*999999)}`;
+        
+        img.src = url;
+        img.onload = async () => {
+            clearInterval(timer);
+            bar.style.width = "100%";
+            percText.innerText = "100%";
+            
+            setTimeout(async () => {
+                loadWrap.style.display = "none";
+                img.style.display = "block";
+                await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
+                await addDoc(collection(db, "creations"), { uid: currentUser.uid, url, createdAt: serverTimestamp() });
+                const snap = await getDoc(doc(db, "users", currentUser.uid));
+                updateUI(snap.data());
+                btn.disabled = false;
+            }, 500);
+        };
+    };
+
     function initChat() {
-        const q = query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(50));
-        onSnapshot(q, (snap) => {
+        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(30)), (snap) => {
             const display = document.getElementById('chat-display');
             display.innerHTML = "";
             snap.docs.reverse().forEach(doc => {
                 const m = doc.data();
-                display.innerHTML += `
-                <div class="msg-bubble">
-                    <img src="${m.pfp}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
-                    <div class="msg-content">
-                        <span class="msg-user">${m.name}</span>
-                        <div style="font-size:14px;">${m.text}</div>
-                        ${m.img ? `<img src="${m.img}" style="width:100%; border-radius:10px; margin-top:8px;" onclick="window.open('${m.img}')">` : ''}
-                    </div>
-                </div>`;
+                display.innerHTML += `<div class="msg-bubble"><img src="${m.pfp}" style="width:30px; height:30px; border-radius:50%;"><div class="msg-content"><span style="color:var(--primary); font-weight:800; font-size:10px;">${m.name}</span><br>${m.text}</div></div>`;
             });
             display.scrollTop = display.scrollHeight;
         });
     }
 
+    function initLeaderboard() {
+        onSnapshot(query(collection(db, "users"), orderBy("credits", "desc"), limit(10)), (snap) => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = "";
+            let rank = 1;
+            snap.forEach(doc => {
+                const u = doc.data();
+                list.innerHTML += `<div class="leader-item"><b>#${rank++}</b> <img src="${u.pfp}" style="width:25px; border-radius:50%;"> <span style="flex:1">${u.displayName}</span> <b>${u.credits}⚡</b></div>`;
+            });
+        });
+    }
+
     window.sendChat = async () => {
         const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if(!text && !pendingShareUrl) return;
-
-        await addDoc(collection(db, "chat"), {
-            uid: currentUser.uid,
-            name: document.getElementById('nav-user-name').innerText,
-            pfp: document.getElementById('nav-pfp').src,
-            text: text,
-            img: pendingShareUrl,
-            createdAt: serverTimestamp()
-        });
+        if(!input.value) return;
+        await addDoc(collection(db, "chat"), { uid: currentUser.uid, name: document.getElementById('nav-user-name').innerText, pfp: document.getElementById('nav-pfp').src, text: input.value, createdAt: serverTimestamp() });
         input.value = "";
-        cancelShare();
     };
 
-    window.prepareShare = (url) => {
-        pendingShareUrl = url;
-        switchTab('chat');
-        document.getElementById('share-preview').style.display = 'block';
-    };
-
-    window.cancelShare = () => {
-        pendingShareUrl = null;
-        document.getElementById('share-preview').style.display = 'none';
-    };
-
-    // --- GALLERY & FEATURED ---
-    async function loadGallery() {
-        const gallery = document.getElementById('user-gallery');
-        gallery.innerHTML = "Loading...";
-        const featSnap = await getDocs(query(collection(db, "featured"), orderBy("createdAt", "desc"), limit(1)));
-        const userSnap = await getDocs(query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc")));
-        gallery.innerHTML = "";
-        featSnap.forEach(doc => {
-            gallery.innerHTML += `
-            <div class="gallery-item featured-item">
-                <div style="position:absolute; top:8px; left:8px; background:var(--gold); color:black; padding:2px 10px; border-radius:10px; font-size:10px; font-weight:900; z-index:5;">🏆 BEST CREATION</div>
-                <img src="${doc.data().url}">
-                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-            </div>`;
-        });
-        userSnap.forEach(doc => {
-            gallery.innerHTML += `
-            <div class="gallery-item">
-                <img src="${doc.data().url}" onclick="window.open('${doc.data().url}')">
-                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-            </div>`;
-        });
-    }
-
-    // --- REWARD TIMER LOGIC ---
-    function checkRewardTimer(lastClaimed) {
-        const btn = document.getElementById('claim-btn');
-        const timerText = document.getElementById('timer-display');
-        if (!lastClaimed) { timerText.innerText = "Ready to claim!"; return; }
-        const nextClaim = (lastClaimed.seconds * 1000) + (24 * 60 * 60 * 1000);
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const diff = nextClaim - now;
-            if (diff <= 0) {
-                clearInterval(interval);
-                btn.disabled = false;
-                timerText.innerText = "Ready to claim!";
-                btn.innerText = "Claim +5 Credits";
-            } else {
-                btn.disabled = true;
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                timerText.innerText = `Next claim in ${h}h ${m}m`;
-                btn.innerText = "Locked 🔒";
-            }
-        }, 1000);
-    }
-
-    window.claimReward = async () => {
-        const btn = document.getElementById('claim-btn');
-        const card = document.getElementById('reward-card-ui');
-        btn.disabled = true;
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
-            card.classList.add('reward-pop');
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            updateUI(snap.data());
-            checkRewardTimer(snap.data().lastClaimed);
-            setTimeout(() => card.classList.remove('reward-pop'), 600);
-        } catch (e) { alert("Error!"); btn.disabled = false; }
-    };
-
-    // --- FLUX HIGH QUALITY GENERATION ---
-    window.generate = async () => {
-        const prompt = document.getElementById('p-input').value.trim();
-        if(!prompt) return;
-        const btn = document.getElementById('gen-btn');
-        btn.disabled = true; btn.innerText = "AI is sketching (Flux)...";
-        
-        // Using Flux engine + Auto-Enhance for midjourney-tier images
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=flux&width=1024&height=1024&nologo=true&enhance=true&seed=${Math.floor(Math.random()*1000000)}`;
-        
-        const img = document.getElementById('out-img');
-        img.src = url;
-        img.onload = async () => {
-            img.style.display = "block";
-            document.getElementById('ph-text').style.display = "none";
-            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
-            await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: url, createdAt: serverTimestamp() });
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            updateUI(snap.data());
-            btn.disabled = false; btn.innerText = "Create Masterpiece (5 Credits)";
-        };
-    };
-
-    window.selectAvatar = (url, el) => {
-        selectedPfpUrl = url;
-        document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected'));
-        el.classList.add('selected');
-    };
-
-    window.handleCustomPfp = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            selectedPfpUrl = e.target.result;
-            const btn = document.querySelector('.add-pfp-btn');
-            btn.innerHTML = `<img src="${selectedPfpUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            selectAvatar(selectedPfpUrl, btn);
-        };
-        reader.readAsDataURL(file);
-    };
-
+    window.selectAvatar = (u, el) => { selectedPfp = u; document.querySelectorAll('.avatar-option').forEach(i => i.style.borderColor = "#eee"); el.style.borderColor = "var(--primary)"; };
     window.saveProfile = async () => {
-        const name = document.getElementById('setup-name').value.trim();
-        if(!name || !selectedPfpUrl) return alert("Complete your profile!");
-        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: null }, { merge: true });
-        location.reload();
+        const n = document.getElementById('setup-name').value;
+        if(n && selectedPfp) { await setDoc(doc(db, "users", currentUser.uid), { displayName: n, pfp: selectedPfp, credits: 10 }, { merge: true }); location.reload(); }
     };
-
-    window.toggleSidebar = () => {
-        document.getElementById('sidebar').classList.toggle('open');
-        document.getElementById('overlay').classList.toggle('active');
-    };
+    window.toggleSidebar = () => { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); };
 </script>
 </body>
 </html>
