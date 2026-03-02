@@ -35,13 +35,11 @@
 
         .view-section { display: none; width: 100%; max-width: 800px; margin: 110px auto 0; padding: 0 20px; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .btn-gen, .btn-claim { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
-
-        /* --- LOADING BAR STYLES --- */
+        
+        /* --- LOADING BAR --- */
         .loading-wrap { width: 100%; margin-top: 20px; display: none; }
         .bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 8px; }
         .bar-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: 0.4s; }
@@ -49,15 +47,12 @@
         .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
         #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* --- GALLERY & BEST CREATION --- */
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; border: 1px solid #e2e8f0; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .featured-item { grid-column: span 2; aspect-ratio: 16/9; border: 3px solid var(--gold); animation: bestGlow 3s infinite alternate; }
-        @keyframes bestGlow { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 20px var(--primary); } }
+        .featured-item { grid-column: span 2; aspect-ratio: 16/9; border: 3px solid var(--gold); }
         .share-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
-        /* --- CHAT & LEADERBOARD GRID --- */
         .social-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
         @media (max-width: 768px) { .social-layout { grid-template-columns: 1fr; } .leaderboard-card { display: none; } }
 
@@ -75,29 +70,25 @@
         .leader-name { flex: 1; font-weight: 700; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .leader-score { font-size: 10px; background: #fff1f6; color: var(--primary); padding: 2px 8px; border-radius: 8px; font-weight: 800; }
 
-        /* --- ONBOARDING --- */
-        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 5000; display: none; align-items: center; justify-content: center; }
-        .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        #onboarding-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 5000; display: none; align-items: center; justify-content: center; }
+        .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; }
         .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; }
-        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; transition: 0.3s; object-fit: cover; }
-        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 46, 136, 0.3); }
-        .add-pfp-btn { display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 24px; color: #64748b; border: 3px dashed #cbd5e1; }
+        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; object-fit: cover; }
+        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); }
     </style>
 </head>
 <body>
 
 <div id="onboarding-overlay">
     <div class="setup-card">
-        <h2 style="font-weight: 800; font-size: 1.5rem;">Welcome to ImageBIT! 🚀</h2>
+        <h2 style="font-weight: 800;">Welcome to ImageBIT! 🚀</h2>
         <div class="avatar-grid" id="avatar-container">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <div class="avatar-option add-pfp-btn" onclick="document.getElementById('custom-pfp-input').click()">+</div>
         </div>
-        <input type="file" id="custom-pfp-input" style="display:none" accept="image/*" onchange="handleCustomPfp(event)">
-        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1.5px solid #e2e8f0; margin-bottom:20px; font-size: 1rem;" placeholder="Enter username">
+        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1.5px solid #e2e8f0; margin-bottom:20px;" placeholder="Enter username">
         <button class="btn-gen" onclick="saveProfile()">Finish Setup</button>
     </div>
 </div>
@@ -153,9 +144,8 @@
     <div class="social-layout">
         <div class="chat-container">
             <div class="chat-messages" id="chat-display"></div>
-            <div id="share-preview" style="display:none; padding:10px; background:#fff0f6; border-top:2px solid var(--primary);">
+            <div id="share-preview" style="display:none; padding:10px; background:#fff0f6;">
                 <span style="font-size:10px; font-weight:800; color:var(--primary);">ATTACHING IMAGE...</span>
-                <button onclick="cancelShare()" style="float:right; border:none; background:none; cursor:pointer;">✕</button>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Say hello...">
@@ -163,7 +153,7 @@
             </div>
         </div>
         <div class="leaderboard-card">
-            <h3 style="font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 15px; letter-spacing: 1px;">🏆 TOP CREATORS</h3>
+            <h3 style="font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 15px;">🏆 TOP CREATORS</h3>
             <div id="leaderboard-list"></div>
         </div>
     </div>
@@ -194,7 +184,6 @@
 
     let currentUser = null;
     let selectedPfpUrl = "";
-    let pendingShareUrl = null;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -202,7 +191,6 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             if(snap.exists() && snap.data().displayName) {
                 updateUI(snap.data());
-                checkRewardTimer(snap.data().lastClaimed);
                 document.getElementById('onboarding-overlay').style.display = 'none';
                 initChat();
                 initLeaderboard();
@@ -225,139 +213,7 @@
         if(tab === 'gallery') loadGallery();
     };
 
-    // --- LEADERBOARD LOGIC ---
-    function initLeaderboard() {
-        const q = query(collection(db, "users"), orderBy("credits", "desc"), limit(10));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = "";
-            let rank = 1;
-            snap.forEach(doc => {
-                const u = doc.data();
-                list.innerHTML += `
-                <div class="leader-item">
-                    <span class="leader-rank">#${rank++}</span>
-                    <img src="${u.pfp}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;">
-                    <div class="leader-name">${u.displayName}</div>
-                    <div class="leader-score">${u.credits}⚡</div>
-                </div>`;
-            });
-        });
-    }
-
-    // --- CHAT LOGIC ---
-    function initChat() {
-        const q = query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(50));
-        onSnapshot(q, (snap) => {
-            const display = document.getElementById('chat-display');
-            display.innerHTML = "";
-            snap.docs.reverse().forEach(doc => {
-                const m = doc.data();
-                display.innerHTML += `
-                <div class="msg-bubble">
-                    <img src="${m.pfp}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
-                    <div class="msg-content">
-                        <span class="msg-user">${m.name}</span>
-                        <div style="font-size:14px;">${m.text}</div>
-                        ${m.img ? `<img src="${m.img}" style="width:100%; border-radius:10px; margin-top:8px;" onclick="window.open('${m.img}')">` : ''}
-                    </div>
-                </div>`;
-            });
-            display.scrollTop = display.scrollHeight;
-        });
-    }
-
-    window.sendChat = async () => {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if(!text && !pendingShareUrl) return;
-
-        await addDoc(collection(db, "chat"), {
-            uid: currentUser.uid,
-            name: document.getElementById('nav-user-name').innerText,
-            pfp: document.getElementById('nav-pfp').src,
-            text: text,
-            img: pendingShareUrl,
-            createdAt: serverTimestamp()
-        });
-        input.value = "";
-        cancelShare();
-    };
-
-    window.prepareShare = (url) => {
-        pendingShareUrl = url;
-        switchTab('chat');
-        document.getElementById('share-preview').style.display = 'block';
-    };
-
-    window.cancelShare = () => {
-        pendingShareUrl = null;
-        document.getElementById('share-preview').style.display = 'none';
-    };
-
-    // --- GALLERY & FEATURED ---
-    async function loadGallery() {
-        const gallery = document.getElementById('user-gallery');
-        gallery.innerHTML = "Loading...";
-        const featSnap = await getDocs(query(collection(db, "featured"), orderBy("createdAt", "desc"), limit(1)));
-        const userSnap = await getDocs(query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc")));
-        gallery.innerHTML = "";
-        featSnap.forEach(doc => {
-            gallery.innerHTML += `
-            <div class="gallery-item featured-item">
-                <div style="position:absolute; top:8px; left:8px; background:var(--gold); color:black; padding:2px 10px; border-radius:10px; font-size:10px; font-weight:900; z-index:5;">🏆 BEST CREATION</div>
-                <img src="${doc.data().url}">
-                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-            </div>`;
-        });
-        userSnap.forEach(doc => {
-            gallery.innerHTML += `
-            <div class="gallery-item">
-                <img src="${doc.data().url}" onclick="window.open('${doc.data().url}')">
-                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-            </div>`;
-        });
-    }
-
-    // --- REWARD TIMER LOGIC ---
-    function checkRewardTimer(lastClaimed) {
-        const btn = document.getElementById('claim-btn');
-        const timerText = document.getElementById('timer-display');
-        if (!lastClaimed) { timerText.innerText = "Ready to claim!"; return; }
-        const nextClaim = (lastClaimed.seconds * 1000) + (24 * 60 * 60 * 1000);
-        const interval = setInterval(() => {
-            const now = Date.now();
-            const diff = nextClaim - now;
-            if (diff <= 0) {
-                clearInterval(interval);
-                btn.disabled = false;
-                timerText.innerText = "Ready to claim!";
-                btn.innerText = "Claim +5 Credits";
-            } else {
-                btn.disabled = true;
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                timerText.innerText = `Next claim in ${h}h ${m}m`;
-                btn.innerText = "Locked 🔒";
-            }
-        }, 1000);
-    }
-
-    window.claimReward = async () => {
-        const btn = document.getElementById('claim-btn');
-        const card = document.getElementById('reward-card-ui');
-        btn.disabled = true;
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
-            card.classList.add('reward-pop');
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            updateUI(snap.data());
-            checkRewardTimer(snap.data().lastClaimed);
-            setTimeout(() => card.classList.remove('reward-pop'), 600);
-        } catch (e) { alert("Error!"); btn.disabled = false; }
-    };
-
-    // --- HUGGING FACE GENERATION + BLUE LOAD BAR ---
+    // --- YOUR UPDATED GENERATE FUNCTION ---
     window.generate = async () => {
         const prompt = document.getElementById('p-input').value.trim();
         if (!prompt) return alert("Enter a prompt first!");
@@ -369,65 +225,84 @@
         const img = document.getElementById('out-img');
         const phText = document.getElementById('ph-text');
 
-        // Setup UI
         btn.disabled = true;
         btn.innerText = "AI is sketching...";
         loadWrap.style.display = "block";
         img.style.display = "none";
         phText.style.display = "none";
 
-        // Progress Bar Simulation
         let progress = 0;
         const barInterval = setInterval(() => {
             progress += Math.random() * 5;
-            if (progress > 95) progress = 95; // Stop at 95 until actual response
+            if (progress > 95) progress = 95;
             barFill.style.width = progress + "%";
             percText.innerText = Math.floor(progress) + "%";
-        }, 400);
+        }, 300);
 
         try {
-            const response = await fetch("https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer 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",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ inputs: prompt })
-            });
+            const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?model=stable-diffusion&seed=${Math.floor(Math.random()*999999)}`;
 
-            if (!response.ok) throw new Error("API failed");
-
-            const blob = await response.blob();
-            const imgUrl = URL.createObjectURL(blob);
-
-            // Finish Progress Bar
-            clearInterval(barInterval);
-            barFill.style.width = "100%";
-            percText.innerText = "100%";
-
-            setTimeout(async () => {
+            img.src = url;
+            img.onload = async () => {
+                clearInterval(barInterval);
+                barFill.style.width = "100%";
+                percText.innerText = "100%";
+                
+                setTimeout(async () => {
+                    loadWrap.style.display = "none";
+                    img.style.display = "block";
+                    await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
+                    await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: url, createdAt: serverTimestamp() });
+                    const snap = await getDoc(doc(db, "users", currentUser.uid));
+                    updateUI(snap.data());
+                    btn.disabled = false;
+                    btn.innerText = "Create Masterpiece (5 Credits)";
+                }, 500);
+            };
+            img.onerror = () => {
+                clearInterval(barInterval);
+                alert("Image generation failed, try again!");
+                btn.disabled = false;
+                btn.innerText = "Create Masterpiece (5 Credits)";
                 loadWrap.style.display = "none";
-                img.src = imgUrl;
-                img.style.display = "block";
-
-                // Firebase Updates
-                await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
-                await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: imgUrl, createdAt: serverTimestamp() });
-
-                const snap = await getDoc(doc(db, "users", currentUser.uid));
-                updateUI(snap.data());
-            }, 500);
-
+                phText.style.display = "block";
+            };
         } catch (e) {
             clearInterval(barInterval);
-            alert("Image generation failed, try again!");
-            console.error(e);
-            loadWrap.style.display = "none";
-            phText.style.display = "block";
-        } finally {
+            alert("Something went wrong, try again!");
             btn.disabled = false;
-            btn.innerText = "Create Masterpiece (5 Credits)";
         }
+    };
+
+    // --- FIREBASE SOCIAL & SETUP HELPERS ---
+    function initChat() {
+        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(20)), (snap) => {
+            const display = document.getElementById('chat-display');
+            display.innerHTML = "";
+            snap.docs.reverse().forEach(doc => {
+                const m = doc.data();
+                display.innerHTML += `<div class="msg-bubble"><img src="${m.pfp}" style="width:30px; border-radius:50%;"><div class="msg-content"><span class="msg-user">${m.name}</span>${m.text}</div></div>`;
+            });
+            display.scrollTop = display.scrollHeight;
+        });
+    }
+
+    function initLeaderboard() {
+        onSnapshot(query(collection(db, "users"), orderBy("credits", "desc"), limit(5)), (snap) => {
+            const list = document.getElementById('leaderboard-list');
+            list.innerHTML = "";
+            snap.forEach(doc => {
+                const u = doc.data();
+                list.innerHTML += `<div class="leader-item"><img src="${u.pfp}" style="width:25px; border-radius:50%;"><span class="leader-name">${u.displayName}</span><b class="leader-score">${u.credits}</b></div>`;
+            });
+        });
+    }
+
+    window.sendChat = async () => {
+        const input = document.getElementById('chat-input');
+        if(!input.value) return;
+        await addDoc(collection(db, "chat"), { uid: currentUser.uid, name: document.getElementById('nav-user-name').innerText, pfp: document.getElementById('nav-pfp').src, text: input.value, createdAt: serverTimestamp() });
+        input.value = "";
     };
 
     window.selectAvatar = (url, el) => {
@@ -436,23 +311,10 @@
         el.classList.add('selected');
     };
 
-    window.handleCustomPfp = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            selectedPfpUrl = e.target.result;
-            const btn = document.querySelector('.add-pfp-btn');
-            btn.innerHTML = `<img src="${selectedPfpUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            selectAvatar(selectedPfpUrl, btn);
-        };
-        reader.readAsDataURL(file);
-    };
-
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value.trim();
-        if(!name || !selectedPfpUrl) return alert("Complete your profile!");
-        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: null }, { merge: true });
+        if(!name || !selectedPfpUrl) return alert("Complete profile!");
+        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10 }, { merge: true });
         location.reload();
     };
 
