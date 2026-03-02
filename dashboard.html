@@ -3,86 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | v4 PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>ImageBIT | Final v4</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; }
+        :root { --pink: #ff2e88; --blue: #3b82f6; --bg: #f8fafc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: #1e293b; overflow: hidden; }
+        body { background: var(--bg); color: #1e293b; }
 
-        /* Premium Navbar */
-        .top-bar { 
+        /* --- Header & User Info --- */
+        .nav { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 0 5%; height: 80px; background: white; border-bottom: 1px solid #e2e8f0; 
+            padding: 0 20px; height: 70px; background: white; border-bottom: 1px solid #e2e8f0; 
             position: fixed; width: 100%; top: 0; z-index: 100; 
         }
-        .user-info { display: flex; align-items: center; gap: 12px; margin-left: 60px; }
-        .user-pfp { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--primary); padding: 2px; background: white; }
-        .user-name { font-weight: 800; font-size: 0.95rem; line-height: 1; }
-        .version-tag { font-size: 10px; color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .user-box { display: flex; align-items: center; gap: 10px; margin-left: 50px; }
+        .user-pfp { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--pink); object-fit: cover; }
+        .user-name { font-weight: 800; font-size: 0.9rem; }
+        .cred-badge { background: #fff1f6; color: var(--pink); padding: 6px 12px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; }
 
-        /* Sidebar & Flying Tick */
-        .gift-trigger { position: fixed; top: 18px; left: 20px; z-index: 1001; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; }
-        .gift-trigger:hover { transform: scale(1.1); }
-        .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: white; z-index: 1002; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 110px 25px; border-right: 1px solid #e2e8f0; }
+        /* --- Sidebar & Reward --- */
+        .gift-btn { position: fixed; top: 12px; left: 15px; z-index: 1001; font-size: 22px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 300px; height: 100%; background: white; z-index: 1002; transition: 0.3s ease-out; padding: 100px 20px; border-right: 1px solid #e2e8f0; }
         .sidebar.open { left: 0; }
-
-        /* The Reward Box */
-        .reward-card { 
-            background: linear-gradient(135deg, #fff5f9 0%, #ffffff 100%); 
-            padding: 30px 20px; border-radius: 24px; text-align: center; 
-            border: 1px solid #ffebf3; position: relative; overflow: hidden;
-        }
-        #tick-icon { 
+        
+        .reward-card { background: #fff5f9; padding: 25px; border-radius: 20px; text-align: center; border: 1px solid #ffebf3; position: relative; overflow: hidden; }
+        
+        /* THE TICK ANIMATION */
+        #tick { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
-            font-size: 80px; opacity: 0; transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; z-index: 10;
+            font-size: 60px; opacity: 0; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        .tick-fly { transform: translate(-50%, -50%) scale(1.2) !important; opacity: 1 !important; }
+        .tick-active { transform: translate(-50%, -50%) scale(1.2) !important; opacity: 1 !important; }
 
-        /* Buttons & Inputs */
-        .claim-btn { 
-            width: 100%; background: var(--primary); color: white; padding: 16px; 
-            border: none; border-radius: 14px; font-weight: 800; cursor: pointer; transition: 0.3s;
-        }
-        .claim-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
-        #timer-text { font-size: 13px; color: #64748b; font-weight: 600; margin-top: 10px; display: none; }
+        /* --- Main Content --- */
+        .container { margin-top: 120px; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .welcome-text { font-size: 2rem; font-weight: 800; margin-bottom: 5px; }
+        .sub-text { color: #64748b; margin-bottom: 30px; }
+        
+        .btn { background: var(--pink); color: white; border: none; padding: 14px 24px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-        .container { margin: 140px auto; max-width: 500px; text-align: center; padding: 0 20px; }
-        .credits-pill { display: inline-block; background: #1e293b; color: white; padding: 10px 20px; border-radius: 100px; font-weight: 800; font-size: 1.1rem; margin-bottom: 20px; }
+        #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.2); z-index: 1000; }
     </style>
 </head>
 <body>
 
-<div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
+<div id="overlay" onclick="toggleSidebar()"></div>
+<div class="gift-btn" onclick="toggleSidebar()">🎁</div>
 
-<div class="top-bar">
-    <div class="user-info">
+<nav class="nav">
+    <div class="user-box">
         <img src="" id="nav-pfp" class="user-pfp">
-        <div>
-            <div class="user-name" id="nav-user-name">Guest User</div>
-            <span class="version-tag">ImageBIT v4 PRO</span>
-        </div>
+        <div class="user-name" id="nav-name">...</div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary); padding-right:5%;">... Credits</div>
-</div>
+    <div class="cred-badge" id="nav-creds">0 Credits</div>
+</nav>
 
 <div class="sidebar" id="sidebar">
     <div class="reward-card">
-        <div id="tick-icon">✅</div>
-        <div id="reward-ui">
-            <h2 style="margin-bottom:8px; font-weight:800;">Daily Gift</h2>
-            <p style="font-size:14px; color:#64748b; margin-bottom:20px;">Get 5 Credits every 24 hours to keep creating.</p>
-            <button class="claim-btn" id="claim-btn" onclick="processClaim()">Claim Reward</button>
-            <div id="timer-text">Next claim in: <span id="countdown">--:--:--</span></div>
+        <div id="tick">✅</div>
+        <div id="reward-content">
+            <h3 style="margin-bottom:10px;">Daily Bonus</h3>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Claim 5 free credits!</p>
+            <button class="btn" id="claim-btn" onclick="claim()">Claim Credits</button>
         </div>
     </div>
 </div>
 
-<div class="container">
-    <div class="credits-pill" id="main-credits">-- Credits</div>
-    <h1 style="font-weight:900; font-size:2.5rem; letter-spacing:-1px;">Welcome back.</h1>
-    <p style="color:#64748b; margin-top:10px;">Your ImageBIT v4 dashboard is ready.</p>
-</div>
+<main class="container">
+    <h1 class="welcome-text">Hey, <span id="user-greeting">Artist</span>!</h1>
+    <p class="sub-text">ImageBIT v4 is ready for action.</p>
+    
+    <div style="width: 100%; max-width: 400px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.03);">
+        <p style="font-weight: 800; margin-bottom: 15px;">Your Balance</p>
+        <div style="font-size: 2.5rem; font-weight: 800; color: var(--pink);" id="hero-creds">--</div>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 5px;">Credits refresh every 24 hours</p>
+    </div>
+</main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -106,68 +104,49 @@
         const snap = await getDoc(doc(db, "users", user.uid));
         if (snap.exists()) {
             const data = snap.data();
-            updateUI(data);
-            checkCooldown(data.lastClaim);
+            // Update UI with Firebase Data
+            document.getElementById('nav-name').innerText = data.displayName || "User";
+            document.getElementById('user-greeting').innerText = data.displayName || "Artist";
+            document.getElementById('nav-pfp').src = data.pfp || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
+            document.getElementById('nav-creds').innerText = data.credits + " Credits";
+            document.getElementById('hero-creds').innerText = data.credits;
+            
+            // Check Cooldown
+            if (data.lastClaim) {
+                const diff = Date.now() - data.lastClaim.toMillis();
+                if (diff < 24 * 60 * 60 * 1000) {
+                    document.getElementById('claim-btn').disabled = true;
+                    document.getElementById('claim-btn').innerText = "Come back tomorrow";
+                }
+            }
         }
     });
 
-    function updateUI(data) {
-        const pfp = data.pfp || `https://api.dicebear.com/7.x/avataaars/svg?seed=${auth.currentUser.uid}`;
-        document.getElementById('nav-user-name').innerText = data.displayName || "Artist";
-        document.getElementById('nav-pfp').src = pfp;
-        document.getElementById('cred-display').innerText = data.credits + " Credits";
-        document.getElementById('main-credits').innerText = data.credits + " Credits Available";
-    }
+    window.toggleSidebar = () => {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('overlay');
+        sb.classList.toggle('open');
+        ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    };
 
-    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
-
-    function checkCooldown(lastClaim) {
-        if (!lastClaim) return;
+    window.claim = async () => {
+        const btn = document.getElementById('claim-btn');
+        btn.disabled = true;
         
-        const now = Date.now();
-        const lastClaimTime = lastClaim.toMillis();
-        const waitTime = 24 * 60 * 60 * 1000; // 24 Hours
-        
-        if (now - lastClaimTime < waitTime) {
-            const btn = document.getElementById('claim-btn');
-            btn.disabled = true;
-            btn.innerText = "Claimed Today";
-            document.getElementById('timer-text').style.display = "block";
-            startTimer(lastClaimTime + waitTime);
-        }
-    }
-
-    function startTimer(targetTime) {
-        const timer = setInterval(() => {
-            const now = Date.now();
-            const diff = targetTime - now;
-            if (diff <= 0) {
-                clearInterval(timer);
-                location.reload();
-                return;
-            }
-            const h = Math.floor(diff / 3600000);
-            const m = Math.floor((diff % 3600000) / 60000);
-            const s = Math.floor((diff % 60000) / 1000);
-            document.getElementById('countdown').innerText = `${h}h ${m}m ${s}s`;
-        }, 1000);
-    }
-
-    window.processClaim = async () => {
-        const userRef = doc(db, "users", auth.currentUser.uid);
         try {
-            await updateDoc(userRef, { 
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
                 credits: increment(5),
-                lastClaim: serverTimestamp() 
+                lastClaim: serverTimestamp()
             });
+
+            // FLYING TICK ANIMATION
+            document.getElementById('reward-content').style.opacity = '0';
+            document.getElementById('tick').classList.add('tick-active');
             
-            // Trigger Flying Tick Animation
-            document.getElementById('reward-ui').style.opacity = '0';
-            document.getElementById('tick-icon').classList.add('tick-fly');
-            
-            setTimeout(() => location.reload(), 1500);
+            setTimeout(() => location.reload(), 1200);
         } catch (e) {
-            alert("Error claiming reward. Try again later.");
+            alert("Error! Try again.");
+            btn.disabled = false;
         }
     };
 </script>
