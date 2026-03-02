@@ -189,7 +189,7 @@
         .price-option:hover { border-color: var(--primary); background: rgba(255, 46, 136, 0.02); }
         .price-option.featured { border-color: var(--primary); background: rgba(255, 46, 136, 0.05); position: relative; }
         .price-option.featured::after {
-            content: "BEST VALUE";
+            content: "MEGA OFFER";
             position: absolute;
             top: -10px; right: 15px;
             background: var(--primary);
@@ -228,8 +228,8 @@
         <div class="input-group">
             <label>Output Quality</label>
             <select id="resolution">
-                <option value="5">Standard Quality (5 credits)</option>
-                <option value="10">Ultra 4K Quality (10 credits)</option>
+                <option value="5">Standard Image (5 credits)</option>
+                <option value="10">4K Ultra Quality (10 credits)</option>
             </select>
         </div>
         
@@ -237,7 +237,7 @@
     </div>
 
     <div class="output-box" id="output-box">
-        <div class="placeholder" id="placeholder-text">Your creation will appear here</div>
+        <div class="placeholder" id="placeholder-text">Your generated image will appear here</div>
         <img id="result" alt="Generated Image">
     </div>
 </div>
@@ -265,7 +265,7 @@
             <div class="price-option" onclick="subscribePro()" style="background: #1e293b; color: white; border: none;">
                 <div style="text-align: left;">
                     <div style="font-size: 1rem;">Pro Subscription</div>
-                    <div style="font-size: 0.75rem; opacity: 0.8; font-weight: 400;">150 Credits/mo + Perks</div>
+                    <div style="font-size: 0.75rem; opacity: 0.8; font-weight: 400;">150 Credits/mo + Faster API</div>
                 </div>
                 <span>$5.99</span>
             </div>
@@ -276,10 +276,9 @@
 </div>
 
 <script type="module">
-    // Firebase Imports (Same as your original)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -298,6 +297,7 @@
     const creditsSpan = document.getElementById('credits');
     const planBadge = document.getElementById('plan-badge');
 
+    // Sync Auth State
     onAuthStateChanged(auth, async (user) => {
         if(!user){ window.location.href="login.html"; return; }
 
@@ -305,11 +305,10 @@
         const userSnap = await getDoc(userRef);
 
         if(userSnap.exists()){
-            const data = userSnap.data();
-            updateUI(data.credits, data.plan);
+            updateUI(userSnap.data().credits, userSnap.data().plan);
         } else {
-            await setDoc(userRef, { credits: 30, plan: "Free" });
-            updateUI(30, "Free");
+            await setDoc(userRef, { credits: 20, plan: "Free" });
+            updateUI(20, "Free");
         }
     });
 
@@ -318,66 +317,97 @@
         planBadge.innerText = `${plan} Plan`;
     }
 
-    // Assign functions to window so HTML onclicks work with type="module"
+    // Modal Controls
     window.showBuyCredits = () => document.getElementById('modal').style.display='flex';
     window.closeModal = () => document.getElementById('modal').style.display='none';
 
-    window.generateImage = async () => {
-        const promptInput = document.getElementById('prompt');
-        const prompt = promptInput.value;
-        const btn = document.getElementById('gen-btn');
-
-        if(!prompt){ alert('Please describe your image'); return; }
-
+    // Credit Purchase System
+    window.buyCredits = async (amount, price) => {
         const user = auth.currentUser;
+        if(!user) return;
+
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        let credits = userSnap.data().credits;
-
-        const cost = parseInt(document.getElementById('resolution').value);
-        if(credits < cost){ alert("Insufficient credits. Please top up!"); return; }
-
-        // UI State: Loading
-        btn.innerText = "Generating...";
-        btn.disabled = true;
-
-        // Deduct credits in Firebase
-        const newTotal = credits - cost;
-        await updateDoc(userRef, { credits: newTotal });
-        updateUI(newTotal, userSnap.data().plan);
-
-        // Simulate Generation
-        const img = document.getElementById('result');
-        img.src = "https://picsum.photos/800/800?random=" + Math.floor(Math.random()*9999);
-        img.onload = () => {
-            img.style.display = "block";
-            document.getElementById('placeholder-text').style.display = "none";
-            btn.innerText = "Generate Image";
-            btn.disabled = false;
-        };
+        
+        try {
+            // Using increment to avoid data overwriting issues
+            await updateDoc(userRef, { 
+                credits: increment(amount) 
+            });
+            
+            const snap = await getDoc(userRef);
+            updateUI(snap.data().credits, snap.data().plan);
+            
+            alert(`Payment Success! ${amount} credits added for $${price}.`);
+            window.closeModal();
+        } catch (e) {
+            alert("Error processing payment.");
+        }
     };
 
-    window.buyCredits = async (amount, price) => {
+    // AI Generation Logic (Credit-Gated)
+    window.generateImage = async () => {
+        const prompt = document.getElementById('prompt').value;
+        const btn = document.getElementById('gen-btn');
+        const cost = parseInt(document.getElementById('resolution').value);
+
+        if(!prompt){ alert('Enter a prompt first!'); return; }
+
         const user = auth.currentUser;
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         let currentCredits = userSnap.data().credits;
-        
-        await updateDoc(userRef, { credits: currentCredits + amount });
-        updateUI(currentCredits + amount, userSnap.data().plan);
-        
-        alert(`Success! added ${amount} credits to your account.`);
-        window.closeModal();
+
+        if(currentCredits < cost){ 
+            alert(`Insufficient credits! You need ${cost} for this generation.`);
+            window.showBuyCredits();
+            return; 
+        }
+
+        // Processing State
+        btn.innerText = "Connecting to AI API...";
+        btn.disabled = true;
+        document.getElementById('placeholder-text').innerText = "Working on your image... Credits will be deducted shortly.";
+
+        try {
+            /* BACKEND HOOK:
+               Add your fetch() call to OpenAI/Stable Diffusion here.
+            */
+
+            // Deduct Credits
+            await updateDoc(userRef, { 
+                credits: increment(-cost) 
+            });
+            updateUI(currentCredits - cost, userSnap.data().plan);
+
+            // Simulation of response
+            setTimeout(() => {
+                document.getElementById('placeholder-text').innerHTML = 
+                    `<div style="color:var(--primary); font-weight:700;">API Ready for Connection</div>
+                     <p style="font-size:0.85rem; margin-top:10px;">Credits deducted. Set 'img.src' to your AI URL here.</p>`;
+                btn.innerText = "Generate Image";
+                btn.disabled = false;
+            }, 1500);
+
+        } catch (err) {
+            alert("API Error. No credits were taken.");
+            btn.innerText = "Generate Image";
+            btn.disabled = false;
+        }
     };
 
     window.subscribePro = async () => {
         const user = auth.currentUser;
         const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, { plan: "Pro", credits: 150 });
-        updateUI(150, "Pro");
-        alert("Welcome to Pro! Your credits have been updated.");
+        await updateDoc(userRef, { 
+            plan: "Pro", 
+            credits: increment(150) 
+        });
+        const snap = await getDoc(userRef);
+        updateUI(snap.data().credits, "Pro");
+        alert("Subscribed to Pro Plan!");
         window.closeModal();
     };
 </script>
+
 </body>
 </html>
