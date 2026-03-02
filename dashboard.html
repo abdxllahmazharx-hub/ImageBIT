@@ -73,10 +73,19 @@
         .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
         
         .container { margin: 120px auto 60px; max-width: 600px; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; }
+        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
         input#p-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; outline: none; }
         .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
         #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+        /* --- GALLERY STYLES --- */
+        .gallery-header { font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .gallery-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); opacity: 0; transition: 0.3s; display: flex; justify-content: flex-end; }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .dl-btn { background: white; border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -118,7 +127,7 @@
 </div>
 
 <div class="sidebar" id="sidebar">
-    <div class="reward-card" id="reward-card-ui">
+    <div class="reward-card" id="reward-card-ui" style="margin-bottom: 20px;">
         <div id="reward-content">
             <div id="reward-emoji" style="font-size: 40px; margin-bottom: 10px;">🎁</div>
             <h2 id="reward-title" style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
@@ -132,17 +141,23 @@
     <div class="card">
         <input type="text" id="p-input" placeholder="A futuristic lion made of neon glass...">
         <button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
+        <div class="canvas" id="canvas">
+            <img src="" id="out-img">
+            <p id="ph-text" style="color:#94a3b8; font-weight:700;">Ready to Generate</p>
+        </div>
     </div>
-    <div class="canvas" id="canvas">
-        <img src="" id="out-img">
-        <p id="ph-text" style="color:#94a3b8; font-weight:700;">Ready to Generate</p>
+
+    <div class="card">
+        <div class="gallery-header">🖼️ Your Creations</div>
+        <div class="gallery-grid" id="user-gallery">
+            </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment, serverTimestamp, collection, addDoc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -160,16 +175,14 @@
     let currentUser = null;
 
     onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-            // Redirect to login if not logged in
-            // window.location.href = "login.html"; 
-        } else {
+        if (user) {
             currentUser = user;
             const userRef = doc(db, "users", user.uid);
             const snap = await getDoc(userRef);
             
             if(snap.exists() && snap.data().displayName) {
                 updateUI(snap.data());
+                loadGallery();
             } else {
                 document.getElementById('onboarding-overlay').style.display = 'flex';
             }
@@ -182,7 +195,28 @@
         document.getElementById('cred-display').innerText = (data.credits || 0) + " Credits";
     }
 
-    // --- Onboarding Logic ---
+    async function loadGallery() {
+        const galleryEl = document.getElementById('user-gallery');
+        galleryEl.innerHTML = "";
+        
+        const q = query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const item = document.createElement('div');
+            item.className = "gallery-item";
+            item.innerHTML = `
+                <img src="${data.url}" alt="Creation">
+                <div class="gallery-overlay">
+                    <button class="dl-btn" onclick="window.open('${data.url}', '_blank')">⬇️</button>
+                </div>
+            `;
+            galleryEl.appendChild(item);
+        });
+    }
+
+    // --- Window functions for HTML access ---
     window.selectAvatar = (url, el) => {
         selectedPfpUrl = url;
         document.querySelectorAll('.avatar-option').forEach(img => img.classList.remove('selected'));
@@ -193,10 +227,7 @@
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedPfpUrl = e.target.result;
-                alert("Image selected!");
-            };
+            reader.onload = (e) => { selectedPfpUrl = e.target.result; alert("Image selected!"); };
             reader.readAsDataURL(file);
         }
     };
@@ -204,77 +235,45 @@
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value.trim();
         if(!name || !selectedPfpUrl) return alert("Please pick an avatar and name!");
-
-        const userRef = doc(db, "users", currentUser.uid);
-        await setDoc(userRef, {
-            displayName: name,
-            pfp: selectedPfpUrl,
-            credits: 10,
-            lastClaimed: 0 // Never claimed
+        await setDoc(doc(db, "users", currentUser.uid), {
+            displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: 0
         }, { merge: true });
-
         location.reload();
     };
 
-    // --- Sidebar Logic ---
     window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('overlay').classList.toggle('active');
     };
 
-    // --- CLAIM REWARD LOGIC ---
     window.claimReward = async () => {
-        if (!currentUser) return;
-        
         const btn = document.getElementById('claim-btn');
         const card = document.getElementById('reward-card-ui');
-        
-        btn.disabled = true;
-        btn.innerText = "Claiming...";
-
+        btn.disabled = true; btn.innerText = "Claiming...";
         try {
-            const userRef = doc(db, "users", currentUser.uid);
-            
-            // Update Firestore
-            await updateDoc(userRef, {
-                credits: increment(5),
-                lastClaimed: serverTimestamp()
-            });
-
-            // 1. Play Animation
+            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
             card.classList.add('reward-pop');
-            
-            // 2. Visual Success Feedback
             document.getElementById('reward-emoji').innerText = "✅";
             document.getElementById('reward-title').innerText = "Credits Added!";
-            document.getElementById('timer-display').innerText = "See you tomorrow!";
             btn.innerText = "Claimed!";
-            
-            // 3. Update the Top Bar Credits
-            const updatedSnap = await getDoc(userRef);
-            updateUI(updatedSnap.data());
-
-            // Remove animation class after it finishes so it can re-trigger if needed
-            setTimeout(() => card.classList.remove('reward-pop'), 600);
-
-        } catch (error) {
-            console.error(error);
-            alert("Failed to claim. Try again!");
-            btn.disabled = false;
-            btn.innerText = "Claim +5 Credits";
-        }
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            updateUI(snap.data());
+        } catch (e) { alert("Error claiming reward."); btn.disabled = false; }
     };
 
-    // --- Generation Logic ---
     window.generate = async () => {
         const prompt = document.getElementById('p-input').value.trim();
         if(!prompt) return;
         
-        const btn = document.getElementById('gen-btn');
-        btn.disabled = true;
-        btn.innerText = "Generating...";
+        // Check credits
+        const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+        if(userSnap.data().credits < 5) return alert("Not enough credits!");
 
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true`;
+        const btn = document.getElementById('gen-btn');
+        btn.disabled = true; btn.innerText = "Generating...";
+
+        const seed = Math.floor(Math.random() * 1000000);
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
         
         const img = document.getElementById('out-img');
         img.src = url;
@@ -282,14 +281,20 @@
             img.style.display = "block";
             document.getElementById('ph-text').style.display = "none";
             
+            // Deduct credits and save to gallery
             await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
-            
-            // Refresh credits display
+            await addDoc(collection(db, "creations"), {
+                uid: currentUser.uid,
+                url: url,
+                prompt: prompt,
+                createdAt: serverTimestamp()
+            });
+
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             updateUI(snap.data());
+            loadGallery(); // Refresh gallery
             
-            btn.disabled = false;
-            btn.innerText = "Create Masterpiece (5 Credits)";
+            btn.disabled = false; btn.innerText = "Create Masterpiece (5 Credits)";
         };
     };
 </script>
