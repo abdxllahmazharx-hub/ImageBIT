@@ -5,34 +5,116 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ImageBIT AI | v4 PRO</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root { --primary:#ff2e88; --accent:#3b82f6; --bg:#f8fafc; }
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif;}
 body{background:var(--bg);color:#1e293b;}
-.top-bar{display:flex;justify-content:space-between;align-items:center;padding:0 5%;height:75px;background:white;border-bottom:1px solid #e2e8f0;position:fixed;width:100%;top:0;z-index:100;}
+
+/* NAVBAR */
+.top-bar{
+display:flex;justify-content:space-between;align-items:center;
+padding:0 5%;height:75px;background:white;
+border-bottom:1px solid #e2e8f0;position:fixed;width:100%;top:0;z-index:100;
+}
 .user-info{display:flex;align-items:center;gap:12px;margin-left:60px;}
 .user-pfp{width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);object-fit:cover;}
 .user-name{font-weight:800;font-size:.9rem;}
 .pro-label{background:var(--primary);color:white;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:800;}
-.gift-trigger{position:fixed;top:15px;left:20px;z-index:1001;font-size:24px;cursor:pointer;background:white;width:45px;height:45px;display:flex;align-items:center;justify-content:center;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);}
-.sidebar{position:fixed;top:0;left:-350px;width:320px;height:100%;background:white;z-index:1002;transition:.4s ease;padding:100px 25px;border-right:1px solid #e2e8f0;}
+
+/* SIDEBAR */
+.gift-trigger{
+position:fixed;top:15px;left:20px;z-index:1001;font-size:24px;
+cursor:pointer;background:white;width:45px;height:45px;
+display:flex;align-items:center;justify-content:center;
+border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.sidebar{
+position:fixed;top:0;left:-350px;width:320px;height:100%;
+background:white;z-index:1002;transition:.4s ease;
+padding:100px 25px;border-right:1px solid #e2e8f0;
+}
 .sidebar.open{left:0;}
-.reward-box{background:#fff5f9;padding:30px;border-radius:24px;text-align:center;border:1px solid #ffebf3;position:relative;}
-.success-tick{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);font-size:70px;opacity:0;transition:.5s cubic-bezier(.175,.885,.32,1.275);}
-.tick-fly{transform:translate(-50%,-50%) scale(1.3)!important;opacity:1!important;}
+
+/* PREMIUM REWARD UI */
+.reward-box{
+background:linear-gradient(145deg,#fff5f9,#ffe4f1);
+padding:35px 25px;border-radius:28px;text-align:center;
+border:1px solid #ffd6ea;
+box-shadow:0 15px 40px rgba(255,46,136,0.08);
+position:relative;
+}
+
+.reward-icon{
+font-size:42px;margin-bottom:12px;
+}
+
+.reward-title{
+font-weight:800;font-size:1.2rem;margin-bottom:6px;
+}
+
+.reward-sub{
+font-size:.85rem;color:#64748b;margin-bottom:20px;
+}
+
+.reward-amount{
+background:white;color:var(--primary);
+font-weight:900;font-size:1.1rem;
+padding:10px 18px;border-radius:14px;
+display:inline-block;margin-bottom:20px;
+box-shadow:0 8px 20px rgba(255,46,136,0.15);
+}
+
+.claim-btn{
+width:100%;background:var(--primary);
+color:white;padding:14px;border:none;
+border-radius:16px;font-weight:800;
+cursor:pointer;transition:.2s ease;
+}
+
+.claim-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 25px rgba(255,46,136,0.35);
+}
+
+.claim-btn:disabled{
+opacity:.6;cursor:not-allowed;transform:none;
+}
+
+.countdown-text{
+margin-top:14px;font-weight:800;
+color:var(--primary);font-size:.9rem;
+}
+
+.success-tick{
+position:absolute;top:50%;left:50%;
+transform:translate(-50%,-50%) scale(0);
+font-size:70px;opacity:0;
+transition:.5s cubic-bezier(.175,.885,.32,1.275);
+}
+.tick-fly{
+transform:translate(-50%,-50%) scale(1.3)!important;
+opacity:1!important;
+}
+
+/* GENERATOR */
 .container{margin:120px auto 60px;max-width:600px;padding:0 20px;}
-.card{background:white;padding:30px;border-radius:28px;border:1px solid #e2e8f0;box-shadow:0 10px 30px rgba(0,0,0,.02);}
+.card{background:white;padding:30px;border-radius:28px;border:1px solid #e2e8f0;}
 input{width:100%;padding:18px;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:20px;outline:none;font-size:1rem;}
 .btn-gen{width:100%;background:#000;color:white;padding:18px;border:none;border-radius:16px;font-weight:700;cursor:pointer;}
+
 #loader{display:none;margin-bottom:20px;}
 .bar-bg{width:100%;height:8px;background:#f1f5f9;border-radius:10px;overflow:hidden;}
 .bar-fill{width:0%;height:100%;background:var(--accent);transition:width .3s;}
+
 .canvas{width:100%;aspect-ratio:1/1;background:#f1f5f9;border-radius:24px;margin-top:25px;overflow:hidden;position:relative;border:2px dashed #cbd5e1;display:flex;align-items:center;justify-content:center;}
 #out-img{width:100%;height:100%;object-fit:cover;display:none;}
 .shimmer{animation:shim 2s infinite linear;background:linear-gradient(to right,#f1f5f9 4%,#e2e8f0 25%,#f1f5f9 36%);background-size:1000px 100%;}
 @keyframes shim{0%{background-position:-1000px 0;}100%{background-position:1000px 0;}}
 </style>
 </head>
+
 <body>
 
 <div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
@@ -50,36 +132,22 @@ input{width:100%;padding:18px;border-radius:16px;border:1px solid #e2e8f0;margin
 
 <div class="sidebar" id="sidebar">
 <div class="reward-box">
+<div class="reward-icon">🎁</div>
+<h3 class="reward-title">Daily Reward</h3>
+<p class="reward-sub">Come back every 24 hours and earn free credits.</p>
+<div class="reward-amount">+5 Credits</div>
+<button class="claim-btn" id="claim-btn" onclick="claimReward()">Claim Reward</button>
+<div id="countdown" class="countdown-text"></div>
 <div class="success-tick" id="tick-icon">✅</div>
-<div id="reward-content">
-<h3 style="margin-bottom:10px;">Daily Gift</h3>
-<button class="btn-gen" id="claim-btn" onclick="claimReward()" style="background:var(--primary);font-size:14px;padding:12px;">Claim +5 Credits</button>
-<div id="countdown" style="margin-top:12px;font-weight:800;color:var(--primary);"></div>
-</div>
-</div>
-</div>
-
-<div class="container">
-<div class="card">
-<div id="loader">
-<p style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px;">Generating...</p>
-<div class="bar-bg"><div class="bar-fill" id="bar-fill"></div></div>
-</div>
-<input type="text" id="p-input" placeholder="A futuristic lion made of neon glass...">
-<button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
-</div>
-<div class="canvas shimmer" id="canvas">
-<img src="" id="out-img">
-<p id="ph-text" style="color:#94a3b8;font-weight:700;">Ready to Generate</p>
 </div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import { getFirestore,doc,getDoc,updateDoc,increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-const firebaseConfig = {
+const firebaseConfig={
 apiKey:"AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
 authDomain:"imagebit-8fe75.firebaseapp.com",
 projectId:"imagebit-8fe75",
@@ -87,51 +155,46 @@ storageBucket:"imagebit-8fe75.appspot.com",
 appId:"1:326104098599:web:f2d3447a6211f2104e6b02"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
 
-onAuthStateChanged(auth, async (user)=>{
+onAuthStateChanged(auth,async(user)=>{
 if(!user){window.location.href="login.html";return;}
+const ref=doc(db,"users",user.uid);
+const snap=await getDoc(ref);
+if(!snap.exists())return;
+const data=snap.data();
 
-const ref = doc(db,"users",user.uid);
-const snap = await getDoc(ref);
-if(!snap.exists()) return;
-
-const data = snap.data();
 document.getElementById("nav-user-name").innerText=data.displayName||"User";
-document.getElementById("nav-pfp").src=data.pfp||`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
 document.getElementById("cred-display").innerText=(data.credits||0)+" Credits";
 
 const now=Date.now();
 const last=data.lastClaim||0;
-const diff=now-last;
-
-if(diff<86400000){
-startCountdown(86400000-diff);
-}
+if(now-last<86400000)startCountdown(86400000-(now-last));
 });
 
 window.toggleSidebar=()=>document.getElementById("sidebar").classList.toggle("open");
 
+document.addEventListener("click",(e)=>{
+const sidebar=document.getElementById("sidebar");
+const trigger=document.querySelector(".gift-trigger");
+if(sidebar.classList.contains("open")&&!sidebar.contains(e.target)&&!trigger.contains(e.target)){
+sidebar.classList.remove("open");
+}
+});
+
 window.claimReward=async()=>{
 const user=auth.currentUser;
 if(!user)return;
-
 const ref=doc(db,"users",user.uid);
 const snap=await getDoc(ref);
 const data=snap.data();
 const now=Date.now();
 const last=data.lastClaim||0;
-
 if(now-last<86400000)return;
 
-await updateDoc(ref,{
-credits:increment(5),
-lastClaim:now
-});
-
-document.getElementById("reward-content").style.opacity="0";
+await updateDoc(ref,{credits:increment(5),lastClaim:now});
 document.getElementById("tick-icon").classList.add("tick-fly");
 setTimeout(()=>location.reload(),1300);
 };
@@ -140,8 +203,6 @@ function startCountdown(ms){
 const btn=document.getElementById("claim-btn");
 const text=document.getElementById("countdown");
 btn.disabled=true;
-btn.style.opacity=".6";
-
 setInterval(()=>{
 ms-=1000;
 if(ms<=0){location.reload();return;}
@@ -151,50 +212,7 @@ const s=Math.floor((ms%60000)/1000);
 text.innerText=`Next reward in ${h}h ${m}m ${s}s`;
 },1000);
 }
-
-window.generate=async()=>{
-const prompt=document.getElementById("p-input").value.trim();
-if(!prompt)return;
-
-const btn=document.getElementById("gen-btn");
-const img=document.getElementById("out-img");
-const fill=document.getElementById("bar-fill");
-const canvas=document.getElementById("canvas");
-
-btn.disabled=true;
-document.getElementById("loader").style.display="block";
-canvas.classList.add("shimmer");
-img.style.display="none";
-document.getElementById("ph-text").style.display="none";
-
-let p=0;
-const timer=setInterval(()=>{
-if(p<98){p+=(100-p)*0.1;fill.style.width=p+"%";}
-},300);
-
-const seed=Math.floor(Math.random()*999999);
-const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
-
-img.src=url;
-
-img.onload=async()=>{
-clearInterval(timer);
-fill.style.width="100%";
-await updateDoc(doc(db,"users",auth.currentUser.uid),{credits:increment(-5)});
-setTimeout(()=>{
-canvas.classList.remove("shimmer");
-img.style.display="block";
-document.getElementById("loader").style.display="none";
-btn.disabled=false;
-},500);
-};
-
-img.onerror=()=>{
-clearInterval(timer);
-alert("AI busy. Switching backup...");
-img.src=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&model=turbo`;
-};
-};
 </script>
+
 </body>
 </html>
