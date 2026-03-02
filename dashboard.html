@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | Dashboard</title>
+    <title>ImageBIT AI | Pro Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,8 +17,9 @@
 
         #auth-guard { display: none; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text-main); }
+        body { background: var(--bg); color: var(--text-main); overflow-x: hidden; }
 
+        /* Navigation */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 5%; height: 75px; background: rgba(255, 255, 255, 0.9);
@@ -35,35 +36,44 @@
             border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid var(--border);
         }
 
+        /* Sidebar & Reward Animation */
         .sidebar {
             position: fixed; top: 0; left: -350px; width: 320px; height: 100%;
-            background: white; z-index: 1002; transition: 0.4s ease; padding: 90px 25px;
+            background: white; z-index: 1002; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); padding: 90px 25px;
         }
         .sidebar.open { left: 0; }
-        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1001; }
-
-        /* Reward Animation */
-        .reward-box { background: #fff5f9; padding: 30px; border-radius: 24px; text-align: center; border: 2px solid #ffebf3; position: relative; overflow: hidden; }
-        .success-tick { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 60px; opacity: 0; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .tick-fly { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-
-        .container { margin: 120px auto 60px; max-width: 700px; padding: 0 20px; }
-        .generator-card { background: white; padding: 30px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 30px; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1001; backdrop-filter: blur(2px); }
         
-        input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; outline: none; }
-        .btn-gen { width: 100%; background: var(--text-main); color: white; padding: 18px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; }
+        .reward-box { background: #fff5f9; padding: 30px; border-radius: 24px; text-align: center; border: 2px solid #ffebf3; position: relative; overflow: hidden; }
+        .success-tick { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
+            font-size: 60px; opacity: 0; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        }
+        .tick-fly { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
 
-        /* Blue Progress Bar */
-        #prog-wrap { display: none; margin-bottom: 15px; }
+        /* Main Generator */
+        .container { margin: 120px auto 60px; max-width: 700px; padding: 0 20px; }
+        .generator-card { background: white; padding: 30px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        
+        input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px; outline: none; font-size: 1rem; }
+        .btn-gen { width: 100%; background: var(--text-main); color: white; padding: 18px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .btn-gen:hover { background: #000; transform: translateY(-2px); }
+
+        /* Progress Bar UI */
+        .prog-wrap { display: none; margin-bottom: 15px; }
         .progress-container { width: 100%; height: 10px; background: #edf2f7; border-radius: 20px; overflow: hidden; }
         .progress-bar { width: 0%; height: 100%; background: var(--progress-blue); transition: width 0.3s; }
-        .pct-text { font-size: 0.9rem; font-weight: 800; color: var(--progress-blue); text-align: center; margin-bottom: 5px; }
+        .pct-text { font-size: 0.9rem; font-weight: 800; color: var(--progress-blue); text-align: center; margin-bottom: 8px; }
 
+        /* Image Output */
         .image-output-container {
-            width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 32px; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;
+            width: 100%; aspect-ratio: 1/1; background: #f1f5f9; 
+            border-radius: 32px; border: 2px dashed var(--border);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
         }
         #output-image { width: 100%; height: 100%; object-fit: cover; display: none; }
+        
         .shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     </style>
@@ -76,9 +86,9 @@
     <div class="top-bar">
         <div class="header-left">
             <img src="" id="user-pfp" class="user-pfp-circle">
-            <div style="font-weight: 800;" id="nav-name">ImageBIT</div>
+            <div style="font-weight: 800; font-size: 1.2rem;" id="nav-name">ImageBIT</div>
         </div>
-        <div class="credit-count" id="display-credits" style="font-weight:800; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">...</div>
+        <div class="credit-count" id="display-credits" style="font-weight: 800; color: var(--primary); background: rgba(255, 46, 136, 0.1); padding: 8px 16px; border-radius: 12px;">...</div>
     </div>
 
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -86,24 +96,28 @@
         <div class="reward-box">
             <div class="success-tick" id="tick-icon">✅</div>
             <div id="reward-inner">
-                <p style="font-weight: 800;">Daily Credits</p>
-                <button class="btn-gen" onclick="claimDailyReward()" id="claim-btn" style="margin-top:15px; padding:10px;">Claim Now</button>
+                <div style="font-size: 40px; margin-bottom: 10px;">🎁</div>
+                <p style="font-weight: 800;" id="rw-status">Daily Reward Available</p>
+                <button class="btn-gen" onclick="claimDailyReward()" id="claim-btn" style="margin-top:15px; padding:12px; font-size:14px;">Claim +5 Credits</button>
             </div>
         </div>
     </div>
 
     <div class="container">
         <div class="generator-card">
-            <div id="prog-wrap">
-                <div class="pct-text" id="pct-text">Generating: 0%</div>
+            <div class="prog-wrap" id="prog-wrap">
+                <div class="pct-text" id="pct-text">Generating Art: 0%</div>
                 <div class="progress-container"><div class="progress-bar" id="prog-bar"></div></div>
             </div>
-            <input type="text" id="prompt-input" placeholder="Describe your image...">
-            <button class="btn-gen" id="gen-btn" onclick="handleGenerate()">Create (5 Credits)</button>
+            <input type="text" id="prompt-input" placeholder="A futuristic lion in space, cinematic lighting...">
+            <button class="btn-gen" id="gen-btn" onclick="handleGenerate()">Create Masterpiece (5 Credits)</button>
         </div>
         <div class="image-output-container shimmer" id="output-container">
             <img src="" id="output-image">
-            <p id="placeholder" style="color:var(--text-muted); font-weight:700;">Your art will appear here</p>
+            <div id="placeholder" style="text-align:center; padding: 20px;">
+                <p style="font-weight: 800; color: var(--text-muted);">AI Canvas Ready</p>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Enter prompt above</p>
+            </div>
         </div>
     </div>
 </div>
@@ -134,6 +148,7 @@
             if (snap.exists()) {
                 document.getElementById('display-credits').innerText = snap.data().credits + " Credits";
                 document.getElementById('user-pfp').src = snap.data().pfp || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix";
+                document.getElementById('nav-name').innerText = snap.data().displayName || "ImageBIT";
             }
         }
     });
@@ -146,61 +161,75 @@
     window.claimDailyReward = async () => {
         const userRef = doc(db, "users", auth.currentUser.uid);
         await updateDoc(userRef, { credits: increment(5), lastClaim: new Date().toLocaleDateString() });
+        
         document.getElementById('reward-inner').style.opacity = '0';
         document.getElementById('tick-icon').classList.add('tick-fly');
-        setTimeout(() => location.reload(), 1200);
+        
+        setTimeout(() => location.reload(), 1500);
     };
 
     window.handleGenerate = async () => {
         const prompt = document.getElementById('prompt-input').value.trim();
-        if(!prompt) return alert("Enter a prompt!");
+        if(!prompt) return alert("Please type something!");
+
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const userSnap = await getDoc(userRef);
+        if(userSnap.data().credits < 5) return alert("Not enough credits!");
 
         const genBtn = document.getElementById('gen-btn');
         const img = document.getElementById('output-image');
         const progBar = document.getElementById('prog-bar');
         const pctText = document.getElementById('pct-text');
         const wrap = document.getElementById('prog-wrap');
+        const ph = document.getElementById('placeholder');
 
+        // UI Prep
         genBtn.disabled = true;
+        genBtn.innerText = "Painting...";
         wrap.style.display = "block";
         img.style.display = "none";
+        ph.style.display = "block";
         
         let progress = 0;
+        const speed = Math.random() * (400 - 200) + 200;
         const timer = setInterval(() => {
-            if(progress < 95) {
-                progress += (100 - progress) * 0.05;
+            if(progress < 98) {
+                progress += (100 - progress) * 0.08;
                 progBar.style.width = progress + "%";
                 pctText.innerText = "AI is thinking: " + Math.floor(progress) + "%";
             }
-        }, 300);
+        }, speed);
 
-        // STABLE URL METHOD
-        const seed = Math.floor(Math.random() * 1000000);
-        const finalUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?seed=${seed}&width=1024&height=1024&nologo=true`;
+        // THE SECRET: High-Speed Direct URL
+        const seed = Math.floor(Math.random() * 999999);
+        const finalUrl = `https://pollinations.ai/p/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true`;
 
-        const testImg = new Image();
-        testImg.src = finalUrl;
-        
-        testImg.onload = async () => {
+        // We set the image source directly. Browsers are optimized to load this.
+        img.src = finalUrl;
+
+        img.onload = async () => {
             clearInterval(timer);
             progBar.style.width = "100%";
-            pctText.innerText = "Complete! 100%";
+            pctText.innerText = "Creation Complete! 100%";
             
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-5) });
+            // Deduct credits only AFTER success
+            await updateDoc(userRef, { credits: increment(-5) });
+            document.getElementById('display-credits').innerText = (userSnap.data().credits - 5) + " Credits";
             
             setTimeout(() => {
-                img.src = finalUrl;
+                ph.style.display = "none";
                 img.style.display = "block";
-                document.getElementById('placeholder').style.display = "none";
                 genBtn.disabled = false;
+                genBtn.innerText = "Create Masterpiece (5 Credits)";
                 wrap.style.display = "none";
-            }, 500);
+            }, 600);
         };
 
-        testImg.onerror = () => {
+        img.onerror = () => {
             clearInterval(timer);
-            alert("Server busy, try again in 5 seconds.");
+            alert("AI Server is heavy right now. Try a simpler prompt!");
             genBtn.disabled = false;
+            genBtn.innerText = "Try Again";
         };
     };
 </script>
