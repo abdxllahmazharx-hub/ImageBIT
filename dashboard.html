@@ -19,26 +19,18 @@
         }
 
         #auth-guard { display: none; }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text-main); overflow-x: hidden; }
 
-        /* Top Bar & Profile Positioning */
+        /* Top Bar */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0 5%; height: 70px; background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px); position: fixed; width: 100%; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border);
         }
-
         .header-left { display: flex; align-items: center; gap: 15px; margin-left: 60px; }
-        
-        .user-pfp-circle {
-            width: 38px; height: 38px; border-radius: 50%;
-            border: 2px solid var(--primary); object-fit: cover;
-            cursor: pointer;
-        }
-
+        .user-pfp-circle { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; cursor: pointer; }
         .gift-trigger {
             position: fixed; top: 12px; left: 20px; z-index: 1001;
             font-size: 24px; cursor: pointer; transition: 0.3s;
@@ -47,20 +39,50 @@
             border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             border: 1px solid var(--border);
         }
-
+        .gift-trigger:hover { transform: scale(1.1); }
         .credit-count { font-weight: 800; color: var(--primary); background: rgba(255, 46, 136, 0.1); padding: 6px 14px; border-radius: 10px; }
 
-        /* Left Sidebar */
+        /* Sidebar & Daily Reward UI */
         .sidebar {
             position: fixed; top: 0; left: -350px; width: 320px; height: 100%;
             background: white; box-shadow: 10px 0 30px rgba(0,0,0,0.05);
             z-index: 1002; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 80px 25px 40px;
+            padding: 80px 20px 40px;
         }
         .sidebar.open { left: 0; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 1001; }
 
-        /* Onboarding / Setup Modal */
+        .daily-reward-card {
+            background: linear-gradient(135deg, #fff5f9 0%, #ffffff 100%);
+            border: 2px solid #ffebf3; border-radius: 20px; padding: 25px;
+            text-align: center; position: relative; overflow: hidden;
+            transition: 0.3s;
+        }
+        .daily-reward-card.claimed { background: #f1f5f9; border-color: #e2e8f0; opacity: 0.8; }
+        
+        .gift-icon-container {
+            font-size: 50px; margin-bottom: 10px; display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        
+        .btn-claim {
+            margin-top: 15px; width: 100%; padding: 12px;
+            background: var(--primary); color: white; border: none;
+            border-radius: 12px; font-weight: 700; cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-claim:disabled { background: var(--text-muted); cursor: not-allowed; }
+        .btn-claim:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255, 46, 136, 0.3); }
+
+        /* Shimmer Effect for Loading */
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%; animation: shimmer 1.5s infinite;
+        }
+
+        /* Setup Modal */
         .setup-modal-overlay { 
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); 
             z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(4px);
@@ -72,14 +94,10 @@
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .pfp-options { display: flex; justify-content: center; gap: 12px; margin: 25px 0; flex-wrap: wrap; }
-        .pfp-choice { 
-            width: 60px; height: 60px; border-radius: 50%; cursor: pointer; 
-            border: 3px solid transparent; transition: 0.2s; 
-        }
-        .pfp-choice:hover { transform: scale(1.1); }
+        .pfp-choice { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
         .pfp-choice.active { border-color: var(--primary); transform: scale(1.1); }
 
-        /* Rest of the UI */
+        /* Generator Section */
         .container { margin: 100px auto 60px; max-width: 700px; padding: 0 20px; }
         .generator-card { background: white; padding: 25px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 25px; }
         input { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; outline: none; font-size: 1rem; }
@@ -104,9 +122,7 @@
     <div class="setup-card">
         <h1>Customize Profile</h1>
         <p style="color: var(--text-muted); margin-top: 5px;">How should we call you, bestie?</p>
-        
         <input type="text" id="setup-name" placeholder="Your display name" style="margin-top: 25px;">
-        
         <p style="font-size: 0.9rem; font-weight: 600; margin-top: 10px;">Choose an Avatar</p>
         <div class="pfp-options">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="pfp-choice" onclick="selectAvatar(this.src, this)">
@@ -115,7 +131,6 @@
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="pfp-choice" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Willow" class="pfp-choice" onclick="selectAvatar(this.src, this)">
         </div>
-
         <button class="btn-gen" onclick="saveProfile()">Start Creating 🚀</button>
     </div>
 </div>
@@ -136,11 +151,14 @@
 
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
-        <h2 style="font-weight: 800;" id="sidebar-user-name">Rewards</h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px;">Free daily credits</p>
-        <div class="daily-card">
-            <span id="daily-gift-icon" class="claim-gift-icon" onclick="claimDailyReward()">🎁</span>
-            <div id="daily-msg" style="font-weight: 700; color: var(--primary);">Claim Daily +5 Credits</div>
+        <h2 style="font-weight: 800; margin-bottom: 5px;">My Rewards</h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 25px;">Exclusive for ImageBIT creators</p>
+        
+        <div class="daily-reward-card" id="reward-card">
+            <div class="gift-icon-container" id="gift-icon">🎁</div>
+            <h3 id="reward-title">Daily Credits</h3>
+            <p id="reward-desc" style="font-size: 0.9rem; color: var(--text-muted);">Get +5 credits for free!</p>
+            <button class="btn-claim" id="claim-btn" onclick="claimDailyReward()">Claim Reward</button>
         </div>
     </div>
 
@@ -152,7 +170,7 @@
         <div class="image-output-container" id="output-container">
             <img src="" id="output-image">
             <div class="placeholder-text" id="placeholder">
-                <p style="font-weight: 700;">Your image will appear here</p>
+                <p style="font-weight: 700; color: var(--text-muted);">Your masterpiece starts here</p>
             </div>
         </div>
     </div>
@@ -163,7 +181,7 @@
             <div class="price-option" onclick="selectPack(10, 0.59, this)"><span>10 Credits</span> <b>$0.59</b></div>
             <div class="price-option" onclick="selectPack(50, 1.39, this)"><span>50 Credits 🎁</span> <b>$1.39</b></div>
             <div class="price-option" onclick="selectPack(100, 3.00, this)"><span>100 Credits</span> <b>$3.00</b></div>
-            <div id="card-element"></div>
+            <div id="card-element" style="padding: 10px; margin: 15px 0;"></div>
             <button class="btn-gen" onclick="processPayment()" id="pay-btn" style="background:var(--indigo)" disabled>Select a package</button>
             <p onclick="closePayment()" style="margin-top:15px; cursor:pointer; font-size: 0.8rem;">Close</p>
         </div>
@@ -187,9 +205,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
-    const elements = stripe.elements();
-    const card = elements.create('card');
 
     let tempAvatar = "";
     let selectedPack = null;
@@ -208,7 +223,6 @@
         const today = new Date().toLocaleDateString();
 
         if(!snap.exists()) {
-            // New user, trigger setup
             await setDoc(userRef, { credits: 30, lastClaim: "", setupDone: false });
             document.getElementById('setup-modal').style.display = 'flex';
             updateUI(30);
@@ -219,19 +233,28 @@
             if(!data.setupDone) {
                 document.getElementById('setup-modal').style.display = 'flex';
             } else {
-                // Set Profile Info
                 document.getElementById('user-pfp').src = data.pfp || "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix";
                 document.getElementById('nav-name').innerText = data.displayName || "ImageBIT";
             }
 
             if(data.lastClaim === today) {
-                const icon = document.getElementById('daily-gift-icon');
-                icon.innerText = "✅"; icon.classList.add('disabled'); icon.onclick = null;
+                setRewardClaimed();
             }
         }
     }
 
-    // Modal Functions
+    function setRewardClaimed() {
+        const btn = document.getElementById('claim-btn');
+        const card = document.getElementById('reward-card');
+        const icon = document.getElementById('gift-icon');
+        
+        btn.innerText = "Come back tomorrow";
+        btn.disabled = true;
+        card.classList.add('claimed');
+        icon.innerText = "✅";
+        document.getElementById('reward-desc').innerText = "Daily credits collected!";
+    }
+
     window.selectAvatar = (url, el) => {
         tempAvatar = url;
         document.querySelectorAll('.pfp-choice').forEach(i => i.classList.remove('active'));
@@ -241,32 +264,63 @@
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value;
         if(!name || !tempAvatar) return alert("Please pick a name and an avatar!");
-        
-        const user = auth.currentUser;
-        await updateDoc(doc(db, "users", user.uid), {
-            displayName: name,
-            pfp: tempAvatar,
-            setupDone: true
-        });
+        await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: name, pfp: tempAvatar, setupDone: true });
         location.reload();
     };
 
-    // Standard Logic
     function updateUI(v) { document.getElementById('display-credits').innerText = `${v} Credits`; }
+
     window.toggleSidebar = () => {
         document.getElementById('sidebar').classList.toggle('open');
         document.getElementById('sidebar-overlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
     };
+
     window.claimDailyReward = async () => {
-        await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(5), lastClaim: new Date().toLocaleDateString() });
-        location.reload();
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        await updateDoc(userRef, { credits: increment(5), lastClaim: new Date().toLocaleDateString() });
+        setRewardClaimed();
+        // Update credits immediately in UI
+        const snap = await getDoc(userRef);
+        updateUI(snap.data().credits);
+        alert("Success! +5 Credits added.");
     };
+
     window.handleLogout = () => signOut(auth).then(() => window.location.href = "login.html");
-    window.handleGenerate = async () => { /* Same as your code... */ };
-    window.selectPack = (amt, price, el) => { /* Same as your code... */ selectedPack = {amt, price}; document.getElementById('pay-btn').disabled = false; };
-    window.openPayment = () => { document.getElementById('payment-modal').style.display = 'flex'; card.mount('#card-element'); };
-    window.closePayment = () => document.getElementById('payment-modal').style.display = 'none';
-    window.processPayment = async () => { /* Same as your code... */ };
+
+    window.handleGenerate = async () => {
+        const prompt = document.getElementById('prompt-input').value;
+        if(!prompt) return alert("Enter a prompt!");
+
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const snap = await getDoc(userRef);
+        if(snap.data().credits < 5) return alert("Not enough credits!");
+
+        const container = document.getElementById('output-container');
+        const img = document.getElementById('output-image');
+        const ph = document.getElementById('placeholder');
+
+        // Start Loading Shimmer
+        img.style.display = 'none';
+        ph.style.display = 'block';
+        ph.innerHTML = `<p style="font-weight: 700;">AI is painting...</p>`;
+        container.classList.add('shimmer');
+
+        // Deduct credits
+        await updateDoc(userRef, { credits: increment(-5) });
+        updateUI(snap.data().credits - 5);
+
+        // Dummy Generation (Replace with real API later)
+        setTimeout(() => {
+            img.src = `https://picsum.photos/800/800?sig=${Math.random()}`;
+            img.onload = () => {
+                container.classList.remove('shimmer');
+                ph.style.display = 'none';
+                img.style.display = 'block';
+            };
+        }, 3000);
+    };
+
+    window.handleLogout = () => signOut(auth).then(() => window.location.href = "login.html");
 </script>
 </body>
 </html>
