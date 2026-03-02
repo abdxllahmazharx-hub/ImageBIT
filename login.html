@@ -4,123 +4,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ImageBIT AI - Login</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-body {
-    background: #F8F9FA;
-    font-family: 'Inter', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-}
-.login-container {
-    background: #FFFFFF;
-    padding: 50px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    width: 100%;
-    max-width: 380px;
-    text-align: center;
-}
-.login-container h1 {
-    font-size: 22px;
-    font-weight: 700;
-    color: #212121;
-    margin-bottom: 30px;
-}
-.login-container input {
-    width: 100%;
-    padding: 12px 15px;
-    margin-bottom: 20px;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    font-size: 16px;
-    outline: none;
-    transition: border 0.2s, box-shadow 0.2s;
-}
-.login-container input:focus {
-    border-color: #B0B0B0;
-    box-shadow: 0 0 6px rgba(0,0,0,0.05);
-}
-.login-btn {
-    width: 100%;
-    padding: 12px;
-    background: #000000;
-    color: #FFFFFF;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    margin-bottom: 15px;
-    transition: background 0.2s, box-shadow 0.2s;
-}
-.login-btn:hover {
-    background: #222222;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-.google-btn {
-    width: 100%;
-    padding: 12px;
-    background: #F1F3F4;
-    color: #202124;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    transition: background 0.2s;
-}
-.google-btn:hover {
-    background: #E0E2E3;
-}
-.google-btn img {
-    width: 20px;
-    height: 20px;
-}
-.create-account {
-    font-size: 14px;
-    color: #6C757D;
-    cursor: pointer;
-    display: block;
-    margin-top: 10px;
-    text-decoration: none;
-}
-.create-account:hover {
-    text-decoration: underline;
-}
-.warning {
-    font-size: 13px;
-    color: #6C757D;
-    margin-top: 8px;
-}
+    :root {
+        --primary: #ff2e88;
+        --bg: #F8F9FA;
+    }
+    body {
+        background: var(--bg);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+    .login-container {
+        background: #FFFFFF;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        width: 90%;
+        max-width: 380px;
+        text-align: center;
+        border: 1px solid #eee;
+    }
+    .login-container h1 {
+        font-size: 24px;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 8px;
+    }
+    .login-container p {
+        color: #64748b;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+    .login-container input {
+        width: 100%;
+        padding: 14px 15px;
+        margin-bottom: 15px;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        font-size: 16px;
+        outline: none;
+        transition: 0.2s;
+    }
+    .login-container input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(255, 46, 136, 0.1);
+    }
+    .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: #1e293b;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        margin-bottom: 15px;
+        transition: 0.2s;
+    }
+    .login-btn:hover { background: #000; }
+    
+    .google-btn {
+        width: 100%;
+        padding: 12px;
+        background: #FFFFFF;
+        color: #1e293b;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .google-btn:hover { background: #f8fafc; }
+    .google-btn img { width: 18px; }
+
+    .create-account {
+        font-size: 14px;
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .warning {
+        font-size: 12px;
+        color: #ef4444;
+        margin-top: 15px;
+        font-weight: 500;
+    }
 </style>
 </head>
 <body>
 
 <div class="login-container">
     <h1>Welcome Back!</h1>
-    <input type="email" id="email" placeholder="Email">
+    <p>Sign in to continue creating</p>
+    
+    <input type="email" id="email" placeholder="Email address">
     <input type="password" id="password" placeholder="Password">
-    <button class="login-btn" onclick="loginWithEmail()">Login</button>
+    
+    <button class="login-btn" id="login-text" onclick="loginWithEmail()">Login</button>
+    
     <button class="google-btn" onclick="loginWithGoogle()">
-        <img src="google_im.png" alt="Google logo">
-        Sign in with Google
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" alt="Google">
+        Continue with Google
     </button>
-    <a class="create-account" href="signup.html">Create Account</a>
+    
+    <div style="font-size: 14px; color: #64748b;">
+        New here? <a class="create-account" href="signup.html">Create Account</a>
+    </div>
+    
     <div class="warning" id="verification-warning"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
+import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -135,34 +142,52 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-window.loginWithEmail = function() {
+// --- THE AUTO-LOGIN MAGIC ---
+onAuthStateChanged(auth, (user) => {
+    if (user && user.emailVerified) {
+        // If already logged in and verified, skip this page!
+        window.location.href = "dashboard.html";
+    }
+});
+
+window.loginWithEmail = async function() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const btnText = document.getElementById("login-text");
+
     if(!email || !password) return alert("Enter email and password");
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            if(!user.emailVerified){
-                sendEmailVerification(user).then(() => {
-                    document.getElementById("verification-warning").innerText = "Verification link sent! ⚠️ Check SPAM folder too.";
-                });
-            } else {
-                window.location.href = "dashboard.html";
-            }
-        })
-        .catch(error => alert(error.message));
+    try {
+        btnText.innerText = "Authenticating...";
+        
+        // 1. Tell Firebase to REMEMBER this user
+        await setPersistence(auth, browserLocalPersistence);
+        
+        // 2. Sign in
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        if(!user.emailVerified){
+            await sendEmailVerification(user);
+            document.getElementById("verification-warning").innerText = "Check your email to verify your account!";
+            btnText.innerText = "Login";
+        } else {
+            window.location.href = "dashboard.html";
+        }
+    } catch (error) {
+        btnText.innerText = "Login";
+        alert(error.message);
+    }
 }
 
 window.loginWithGoogle = function() {
-    signInWithPopup(auth, provider)
-        .then(result => {
-            window.location.href = "dashboard.html";
-        })
-        .catch(error => alert(error.message));
+    setPersistence(auth, browserLocalPersistence).then(() => {
+        return signInWithPopup(auth, provider);
+    }).then(() => {
+        window.location.href = "dashboard.html";
+    }).catch(error => alert(error.message));
 }
 </script>
 
 </body>
 </html>
-
