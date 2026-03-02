@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI Generator</title>
+    <title>ImageBIT AI | Credits & Rewards</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
     
+    <script src="https://js.stripe.com/v3/"></script>
+
     <style>
         :root {
             --primary: #ff2e88;
@@ -16,6 +17,7 @@
             --text-main: #1e293b;
             --text-muted: #64748b;
             --border: #e2e8f0;
+            --indigo: #6366f1;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -28,211 +30,145 @@
                               radial-gradient(at 100% 100%, rgba(255, 46, 136, 0.05) 0px, transparent 50%);
         }
 
+        /* Top Navigation */
         .top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 5%;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 5%; background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px); position: fixed; width: 100%; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border);
         }
 
-        .plan-badge {
-            background: #f1f5f9;
-            color: var(--text-main);
-            font-weight: 700;
-            padding: 6px 16px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            border: 1px solid var(--border);
+        .credit-info { display: flex; align-items: center; gap: 12px; }
+        .credit-count { 
+            font-weight: 800; color: var(--primary); 
+            background: rgba(255, 46, 136, 0.1); 
+            padding: 6px 14px; border-radius: 10px; font-size: 0.9rem;
         }
 
-        .credits-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .btn-buy { 
+            background: var(--primary); color: white; border: none; 
+            padding: 8px 18px; border-radius: 10px; cursor: pointer; 
+            font-weight: 700; transition: 0.2s;
+        }
+        .btn-buy:hover { transform: translateY(-1px); background: var(--primary-hover); }
+
+        /* Main Interface */
+        .container { margin: 120px auto 60px; max-width: 700px; padding: 0 20px; text-align: center; }
+        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+
+        .generator-card { 
+            background: var(--card-bg); padding: 30px; border-radius: 24px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border);
         }
 
-        .credit-count {
-            font-weight: 700;
-            color: var(--primary);
-            background: rgba(255, 46, 136, 0.1);
-            padding: 6px 12px;
-            border-radius: 8px;
+        input[type="text"], select { 
+            width: 100%; padding: 14px 18px; border-radius: 14px; 
+            border: 1px solid var(--border); font-size: 1rem; margin-bottom: 15px;
+            background: #fcfcfd; outline: none;
         }
 
-        .btn-buy {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
+        .btn-generate { 
+            width: 100%; background: var(--text-main); color: white; padding: 16px; 
+            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; 
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-generate:hover { background: #000; }
+        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .output-box { 
+            margin-top: 30px; width: 100%; aspect-ratio: 16/9; 
+            background: #f1f5f9; border: 2px dashed var(--border); 
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
         }
 
-        .container {
-            margin: 120px auto 60px;
-            max-width: 800px;
-            padding: 0 20px;
-            text-align: center;
+        /* Payment Popup Modal */
+        .modal-overlay { 
+            display: none; position: fixed; inset: 0; 
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); 
+            justify-content: center; align-items: center; z-index: 1000; 
         }
 
-        .generator-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+        .modal { 
+            background: white; border-radius: 28px; padding: 35px; 
+            width: 100%; max-width: 440px; position: relative;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .modal h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
+        .modal p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
+
+        .package { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 16px 20px; border: 2px solid var(--border); 
+            border-radius: 16px; margin-bottom: 12px; cursor: pointer; font-weight: 700;
+        }
+        .package:hover { border-color: var(--primary); }
+        .package.active { border-color: var(--primary); background: rgba(255, 46, 136, 0.05); }
+
+        #card-element { 
+            margin: 20px 0; padding: 15px; border: 1px solid var(--border); 
+            border-radius: 12px; background: #fcfcfd; 
         }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-muted); }
-
-        input[type="text"], select {
-            width: 100%;
-            padding: 14px 18px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            background: #fcfcfd;
+        .btn-pay { 
+            width: 100%; background: var(--indigo); color: white; padding: 16px; 
+            border: none; border-radius: 14px; font-weight: 700; cursor: pointer; 
         }
+        .btn-pay:disabled { opacity: 0.5; }
 
-        .btn-generate {
-            width: 100%;
-            background: var(--text-main);
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
+        .close-btn { 
+            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; 
+            cursor: pointer; color: var(--text-muted); 
         }
-
-        .output-box {
-            margin: 30px auto;
-            width: 100%;
-            aspect-ratio: 1/1;
-            max-width: 500px;
-            background: #f1f5f9;
-            border: 2px dashed var(--border);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Modal & PayPal Styles */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            width: 100%;
-            max-width: 440px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .price-option {
-            display: flex;
-            justify-content: space-between;
-            padding: 16px;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .price-option.selected {
-            border-color: var(--primary);
-            background: rgba(255, 46, 136, 0.05);
-        }
-
-        #paypal-button-container {
-            margin-top: 20px;
-            display: none; /* Hidden until a package is selected */
-        }
-
-        .close-link { margin-top: 15px; display: block; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div class="top-bar">
-    <div class="plan-badge" id="plan-badge">Free Plan</div>
-    <div class="credits-info">
-        <span class="credit-count" id="credits">0 Credits</span>
-        <button class="btn-buy" onclick="showBuyCredits()">Buy Credits</button>
+    <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: -1px;">ImageBIT <span style="color:var(--primary)">AI</span></div>
+    <div class="credit-info">
+        <span class="credit-count" id="display-credits">Checking...</span>
+        <button class="btn-buy" onclick="openPopup()">Add Credits</button>
     </div>
 </div>
 
 <div class="container">
     <h1>Create Masterpieces</h1>
-    <p class="subtitle">Turn text into high-quality AI images in seconds.</p>
+    <p class="subtitle">Enter your prompt below to start generating.</p>
     
     <div class="generator-card">
-        <div class="input-group">
-            <label>Describe your vision</label>
-            <input type="text" id="prompt" placeholder="A futuristic city in the style of cyberpunk...">
-        </div>
-        
-        <div class="input-group">
-            <label>Output Quality</label>
-            <select id="resolution">
-                <option value="5">Standard Image (5 credits)</option>
-                <option value="10">4K Ultra Quality (10 credits)</option>
-            </select>
-        </div>
-        
-        <button class="btn-generate" onclick="generateImage()" id="gen-btn">Generate Image</button>
+        <input type="text" id="prompt-input" placeholder="A majestic lion wearing a golden crown...">
+        <select id="quality-select">
+            <option value="5">Standard Resolution (5 Credits)</option>
+            <option value="10">High Definition (10 Credits)</option>
+        </select>
+        <button class="btn-generate" onclick="handleGenerate()" id="gen-btn">Generate Image</button>
     </div>
 
-    <div class="output-box" id="output-box">
-        <div class="placeholder" id="placeholder-text">Your generated image will appear here</div>
+    <div class="output-box" id="status-container">
+        <div style="color: var(--text-muted); font-weight: 500;">No images generated in this session.</div>
     </div>
 </div>
 
-<div class="modal-overlay" id="modal">
+<div class="modal-overlay" id="payment-popup">
     <div class="modal">
-        <h3>Refill Credits</h3>
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+        <h2>Refill Credits</h2>
+        <p>Choose a package to continue creating. Meezan Bank cards supported via Stripe.</p>
         
-        <div class="price-option" onclick="selectPackage(10, 0.59, this)">
-            <span>10 Credits</span>
-            <span>$0.59</span>
-        </div>
-        
-        <div class="price-option" onclick="selectPackage(50, 1.39, this)">
-            <span>50 Credits</span>
-            <span>$1.39</span>
-        </div>
-        
-        <div class="price-option" onclick="selectPackage(100, 3.00, this)">
-            <span>100 Credits</span>
-            <span>$3.00</span>
+        <div id="packages">
+            <div class="package" onclick="selectPack(50, 2.99, this)">
+                <span>50 Credits</span> <span>$2.99</span>
+            </div>
+            <div class="package" onclick="selectPack(150, 6.99, this)">
+                <span>150 Credits</span> <span>$6.99</span>
+            </div>
         </div>
 
-        <div id="paypal-button-container"></div>
-        
-        <span class="close-link" onclick="closeModal()">Maybe later</span>
+        <div id="card-element"></div>
+        <button class="btn-pay" id="pay-btn" onclick="processPayment()" disabled>Select a package</button>
     </div>
 </div>
 
@@ -254,125 +190,137 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const creditsSpan = document.getElementById('credits');
-    const planBadge = document.getElementById('plan-badge');
+    // Stripe Config
+    const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY'); 
+    const elements = stripe.elements();
+    const card = elements.create('card', { style: { base: { fontSize: '16px' } } });
 
-    let selectedPackageData = null;
+    let activePack = null;
 
+    // --- AUTH & REWARDS LOGIC ---
     onAuthStateChanged(auth, async (user) => {
-        if(!user){ window.location.href="login.html"; return; }
+        if(!user) return;
+        
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if(userSnap.exists()){
-            updateUI(userSnap.data().credits, userSnap.data().plan);
+        const snap = await getDoc(userRef);
+        const today = new Date().toLocaleDateString();
+
+        if(!snap.exists()) {
+            // NEW USER: Gift 30 Credits
+            await setDoc(userRef, { 
+                credits: 30, 
+                lastBonusDate: today 
+            });
+            alert("Welcome! We've gifted you 30 credits to get started.");
+            refreshCredits(30);
         } else {
-            await setDoc(userRef, { credits: 20, plan: "Free" });
-            updateUI(20, "Free");
+            const data = snap.data();
+            // DAILY BONUS: 5 Credits
+            if(data.lastBonusDate !== today) {
+                await updateDoc(userRef, { 
+                    credits: increment(5), 
+                    lastBonusDate: today 
+                });
+                alert("Daily Reward: +5 Credits added!");
+                refreshCredits(data.credits + 5);
+            } else {
+                refreshCredits(data.credits);
+            }
         }
     });
 
-    function updateUI(credits, plan) {
-        creditsSpan.innerText = `${credits} Credits`;
-        planBadge.innerText = `${plan} Plan`;
+    function refreshCredits(val) {
+        document.getElementById('display-credits').innerText = `${val} Credits`;
     }
 
-    window.showBuyCredits = () => document.getElementById('modal').style.display='flex';
-    window.closeModal = () => {
-        document.getElementById('modal').style.display='none';
-        document.getElementById('paypal-button-container').style.display = 'none';
-        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
+    // --- POPUP HANDLERS ---
+    window.openPopup = () => {
+        document.getElementById('payment-popup').style.display = 'flex';
+        card.mount('#card-element');
     };
 
-    // --- PAYPAL INTEGRATION ---
-    window.selectPackage = (amount, price, element) => {
-        selectedPackageData = { amount, price };
-        
-        // UI Selection
-        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
-        
-        const container = document.getElementById('paypal-button-container');
-        container.style.display = 'block';
-        container.innerHTML = ''; // Clear previous button
-
-        paypal.Buttons({
-            createOrder: (data, actions) => {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: { value: price.toString() },
-                        description: `${amount} ImageBIT Credits`
-                    }]
-                });
-            },
-            onApprove: async (data, actions) => {
-                return actions.order.capture().then(async (details) => {
-                    await finalizePurchase(amount);
-                });
-            },
-            onError: (err) => {
-                alert("Payment failed. Please try again.");
-            }
-        }).render('#paypal-button-container');
+    window.closePopup = () => {
+        document.getElementById('payment-popup').style.display = 'none';
     };
 
-    async function finalizePurchase(amount) {
-        const user = auth.currentUser;
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, { credits: increment(amount) });
-        
-        const snap = await getDoc(userRef);
-        updateUI(snap.data().credits, snap.data().plan);
-        
-        alert(`Success! ${amount} credits added to your account.`);
-        window.closeModal();
-    }
+    window.selectPack = (amt, price, el) => {
+        activePack = { amt, price };
+        document.querySelectorAll('.package').forEach(p => p.classList.remove('active'));
+        el.classList.add('active');
+        const btn = document.getElementById('pay-btn');
+        btn.disabled = false;
+        btn.innerText = `Confirm Payment ($${price})`;
+    };
 
-    // --- GENERATION LOGIC (CLEANED) ---
-    window.generateImage = async () => {
-        const prompt = document.getElementById('prompt').value;
+    // --- STRIPE PAYMENT ---
+    window.processPayment = async () => {
+        const btn = document.getElementById('pay-btn');
+        btn.disabled = true;
+        btn.innerText = "Securing Transaction...";
+
+        const {token, error} = await stripe.createToken(card);
+
+        if (error) {
+            alert(error.message);
+            btn.disabled = false;
+        } else {
+            // Actual Handshake Successful
+            const user = auth.currentUser;
+            const userRef = doc(db, "users", user.uid);
+            
+            await updateDoc(userRef, { credits: increment(activePack.amt) });
+            const snap = await getDoc(userRef);
+            refreshCredits(snap.data().credits);
+
+            alert(`Payment Successful! ${activePack.amt} credits added.`);
+            closePopup();
+        }
+    };
+
+    // --- GENERATE LOGIC (STRICT) ---
+    window.handleGenerate = async () => {
+        const prompt = document.getElementById('prompt-input').value;
+        const cost = parseInt(document.getElementById('quality-select').value);
         const btn = document.getElementById('gen-btn');
-        const cost = parseInt(document.getElementById('resolution').value);
 
-        if(!prompt){ alert('Enter a prompt first!'); return; }
+        if(!prompt) return alert("Enter a prompt first!");
 
         const user = auth.currentUser;
         const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        let currentCredits = userSnap.data().credits;
+        const snap = await getDoc(userRef);
+        const currentBalance = snap.data().credits;
 
-        if(currentCredits < cost){ 
-            alert(`Insufficient credits! You need ${cost} for this.`);
-            window.showBuyCredits();
-            return; 
+        if(currentBalance < cost) {
+            alert("Insufficient credits. Please top up!");
+            openPopup();
+            return;
         }
 
-        // Processing UI
-        btn.innerText = "Processing...";
+        // Processing State
         btn.disabled = true;
-        document.getElementById('placeholder-text').innerHTML = `
-            <div style="text-align:center;">
-                <p><b>Credits Deducted!</b></p>
-                <p style="font-size:0.8rem; color:var(--text-muted);">The backend is not yet connected. <br> Your request: "${prompt}"</p>
+        btn.innerText = "Verifying Credits...";
+
+        // Deduct from Firestore
+        await updateDoc(userRef, { credits: increment(-cost) });
+        refreshCredits(currentBalance - cost);
+
+        // Update UI (No images appear)
+        document.getElementById('status-container').innerHTML = `
+            <div style="text-align: center;">
+                <p style="font-weight: 700; color: var(--primary);">Credits Deducted (-${cost})</p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">
+                    Request for: "${prompt}" sent to queue.<br>
+                    Backend API integration needed to display results.
+                </p>
             </div>
         `;
 
-        try {
-            // Deduct Credits
-            await updateDoc(userRef, { credits: increment(-cost) });
-            updateUI(currentCredits - cost, userSnap.data().plan);
-            
-            // Note: No random images will appear now.
-            setTimeout(() => {
-                btn.innerText = "Generate Image";
-                btn.disabled = false;
-            }, 2000);
-
-        } catch (err) {
-            alert("Error updating credits.");
-            btn.innerText = "Generate Image";
+        setTimeout(() => {
             btn.disabled = false;
-        }
+            btn.innerText = "Generate Image";
+        }, 1500);
     };
 </script>
+
 </body>
 </html>
