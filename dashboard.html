@@ -47,36 +47,41 @@
         .sidebar.open { left: 0; }
         .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(2px); z-index: 1001; }
 
-        /* Main Container & Spacing Fixes */
+        /* Main Container */
         .container { margin: 110px auto 60px; max-width: 700px; padding: 0 20px; }
-        .generator-card { background: white; padding: 30px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .generator-card { background: white; padding: 30px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 30px; }
         input { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 20px; outline: none; font-size: 1rem; transition: 0.2s; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 46, 136, 0.05); }
+        input:focus { border-color: var(--primary); }
         .btn-gen { width: 100%; background: var(--text-main); color: white; padding: 18px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 1rem; }
-        .btn-gen:hover { background: #000; transform: translateY(-1px); }
+        .btn-gen:hover { background: #000; }
 
-        /* Progress Bar UI */
-        .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; margin-bottom: 20px; display: none; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: var(--progress-blue); border-radius: 10px; transition: width 0.3s ease; }
-        .percentage-text { font-size: 0.85rem; font-weight: 700; color: var(--progress-blue); margin-bottom: 8px; display: none; text-align: right; }
+        /* Progress Bar */
+        .progress-container { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; margin-bottom: 10px; display: none; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--progress-blue); border-radius: 10px; transition: width 0.4s ease; }
+        .percentage-text { font-size: 0.85rem; font-weight: 800; color: var(--progress-blue); margin-bottom: 8px; display: none; text-align: center; }
 
         /* Image Output */
         .image-output-container {
             width: 100%; aspect-ratio: 1/1; background: #f1f5f9; 
             border-radius: 28px; border: 2px dashed var(--border);
-            display: flex; align-items: center; justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             overflow: hidden; position: relative;
         }
         #output-image { width: 100%; height: 100%; object-fit: cover; display: none; }
         
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         .shimmer { background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* Reward Card Fixes */
-        .daily-reward-card { background: #fff5f9; border: 2px solid #ffebf3; border-radius: 24px; padding: 30px; text-align: center; }
-        .daily-reward-card.claimed { background: #f1f5f9; border-color: #e2e8f0; }
+        /* Download Button */
+        #download-btn {
+            position: absolute; bottom: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.9); padding: 10px 20px;
+            border-radius: 10px; font-weight: 700; color: var(--text-main);
+            text-decoration: none; display: none; border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-size: 14px;
+        }
 
-        /* Setup Modal */
+        /* Modal Settings */
         .setup-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center; backdrop-filter: blur(4px); }
         .setup-card { background: white; padding: 40px; border-radius: 32px; width: 90%; max-width: 450px; text-align: center; }
         .pfp-options { display: flex; justify-content: center; gap: 12px; margin: 25px 0; flex-wrap: wrap; }
@@ -89,15 +94,15 @@
 <div class="setup-modal-overlay" id="setup-modal">
     <div class="setup-card">
         <h1>Welcome to ImageBIT</h1>
-        <p style="color: var(--text-muted); margin-top: 8px;">Create your profile to start generating art</p>
-        <input type="text" id="setup-name" placeholder="Enter your display name" style="margin-top: 25px;">
+        <p style="color: var(--text-muted); margin-top: 8px;">Pick a name and avatar to start</p>
+        <input type="text" id="setup-name" placeholder="Display name">
         <div class="pfp-options">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="pfp-choice" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="pfp-choice" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper" class="pfp-choice" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="pfp-choice" onclick="selectAvatar(this.src, this)">
         </div>
-        <button class="btn-gen" onclick="saveProfile()">Start Creating 🚀</button>
+        <button class="btn-gen" onclick="saveProfile()">Let's Go 🚀</button>
     </div>
 </div>
 
@@ -117,12 +122,11 @@
 
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
-        <h2 style="font-weight: 800; margin-bottom: 10px;">My Rewards</h2>
-        <div class="daily-reward-card" id="reward-card">
-            <div style="font-size: 50px; margin-bottom: 10px;" id="gift-icon">🎁</div>
-            <h3>Daily Credits</h3>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin: 10px 0;">Get +5 credits for free every day</p>
-            <button class="btn-gen" id="claim-btn" onclick="claimDailyReward()" style="padding: 12px; font-size: 0.9rem;">Claim Credits</button>
+        <h2 style="font-weight: 800;">My Rewards</h2>
+        <div style="background: #fff5f9; padding: 25px; border-radius: 20px; text-align: center; margin-top: 20px;">
+            <div style="font-size: 40px;" id="gift-icon">🎁</div>
+            <p style="font-weight: 700; margin: 10px 0;">Claim 5 Credits</p>
+            <button class="btn-gen" id="claim-btn" onclick="claimDailyReward()" style="padding: 10px; font-size: 14px;">Claim Now</button>
         </div>
     </div>
 
@@ -132,13 +136,14 @@
             <div class="progress-container" id="prog-cont">
                 <div class="progress-bar" id="prog-bar"></div>
             </div>
-            <input type="text" id="prompt-input" placeholder="Describe the image you want to create...">
-            <button class="btn-gen" id="gen-btn" onclick="handleGenerate()">Generate Image (5 Credits)</button>
+            <input type="text" id="prompt-input" placeholder="Type what you want to see...">
+            <button class="btn-gen" id="gen-btn" onclick="handleGenerate()">Generate (5 Credits)</button>
         </div>
         <div class="image-output-container" id="output-container">
             <img src="" id="output-image">
+            <a href="#" id="download-btn" download="generated-image.jpg">Download ⬇️</a>
             <div id="placeholder" style="text-align:center;">
-                <p style="font-weight: 700; color: var(--text-muted);">Your art will appear here</p>
+                <p style="font-weight: 700; color: var(--text-muted);">Masterpiece goes here</p>
             </div>
         </div>
     </div>
@@ -166,10 +171,7 @@
 
     onAuthStateChanged(auth, async (user) => {
         if (!user) window.location.href = "login.html";
-        else {
-            document.getElementById('auth-guard').style.display = 'block';
-            await syncUser(user);
-        }
+        else { document.getElementById('auth-guard').style.display = 'block'; await syncUser(user); }
     });
 
     async function syncUser(user) {
@@ -185,10 +187,7 @@
             const data = snap.data();
             updateUI(data.credits);
             if(!data.setupDone) document.getElementById('setup-modal').style.display = 'flex';
-            else {
-                document.getElementById('user-pfp').src = data.pfp;
-                document.getElementById('nav-name').innerText = data.displayName;
-            }
+            else { document.getElementById('user-pfp').src = data.pfp; document.getElementById('nav-name').innerText = data.displayName; }
             if(data.lastClaim === today) setRewardClaimed();
         }
     }
@@ -198,7 +197,7 @@
     
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value;
-        if(!name || !tempAvatar) return alert("Please complete your profile!");
+        if(!name || !tempAvatar) return alert("Fill in details!");
         await updateDoc(doc(db, "users", auth.currentUser.uid), { displayName: name, pfp: tempAvatar, setupDone: true });
         location.reload();
     };
@@ -211,28 +210,18 @@
     window.claimDailyReward = async () => {
         const userRef = doc(db, "users", auth.currentUser.uid);
         await updateDoc(userRef, { credits: increment(5), lastClaim: new Date().toLocaleDateString() });
-        const snap = await getDoc(userRef);
-        updateUI(snap.data().credits);
-        setRewardClaimed();
-        alert("Success! 5 credits added.");
+        location.reload();
     };
 
-    function setRewardClaimed() {
-        const btn = document.getElementById('claim-btn');
-        btn.innerText = "Claimed Today";
-        btn.disabled = true;
-        document.getElementById('gift-icon').innerText = "✅";
-    }
+    function setRewardClaimed() { document.getElementById('claim-btn').innerText = "Claimed"; document.getElementById('claim-btn').disabled = true; }
 
-    // --- GENERATION WITH PROGRESS BAR ---
     window.handleGenerate = async () => {
-        const pInput = document.getElementById('prompt-input');
-        const prompt = pInput.value.trim();
-        if(!prompt) return alert("Please enter a description!");
+        const prompt = document.getElementById('prompt-input').value.trim();
+        if(!prompt) return alert("Enter a description!");
 
         const userRef = doc(db, "users", auth.currentUser.uid);
         const snap = await getDoc(userRef);
-        if(snap.data().credits < 5) return alert("You need more credits!");
+        if(snap.data().credits < 5) return alert("Not enough credits!");
 
         const container = document.getElementById('output-container');
         const img = document.getElementById('output-image');
@@ -241,35 +230,37 @@
         const progCont = document.getElementById('prog-cont');
         const progBar = document.getElementById('prog-bar');
         const pctText = document.getElementById('pct-text');
+        const dBtn = document.getElementById('download-btn');
 
-        // Reset and Show Progress UI
         genBtn.disabled = true;
-        genBtn.innerText = "Processing...";
         progCont.style.display = "block";
         pctText.style.display = "block";
+        dBtn.style.display = "none";
         img.style.display = 'none';
         ph.style.display = 'block';
         container.classList.add('shimmer');
 
-        // Simulate Progress Bar
-        let progress = 0;
-        const interval = setInterval(() => {
-            if (progress < 90) {
-                progress += Math.random() * 15;
-                if (progress > 90) progress = 90;
-                progBar.style.width = progress + "%";
-                pctText.innerText = `Generating: ${Math.floor(progress)}%`;
+        let currentProgress = 0;
+        const speed = Math.floor(Math.random() * 300) + 100;
+        const progressTimer = setInterval(() => {
+            if (currentProgress < 92) {
+                currentProgress += Math.random() * 8;
+                if (currentProgress > 92) currentProgress = 92;
+                progBar.style.width = currentProgress + "%";
+                pctText.innerText = `Generating: ${Math.floor(currentProgress)}%`;
             }
-        }, 400);
+        }, speed);
 
         try {
             const seed = Math.floor(Math.random() * 1000000);
             const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
 
             const tempImg = new Image();
+            tempImg.crossOrigin = "anonymous"; // Needed for downloading
             tempImg.src = imageUrl;
+
             tempImg.onload = async () => {
-                clearInterval(interval);
+                clearInterval(progressTimer);
                 progBar.style.width = "100%";
                 pctText.innerText = "Generating: 100%";
 
@@ -278,19 +269,20 @@
 
                 setTimeout(() => {
                     img.src = imageUrl;
+                    dBtn.href = imageUrl;
                     container.classList.remove('shimmer');
                     ph.style.display = 'none';
                     img.style.display = 'block';
+                    dBtn.style.display = 'block';
                     genBtn.disabled = false;
-                    genBtn.innerText = "Generate Image (5 Credits)";
                     progCont.style.display = "none";
                     pctText.style.display = "none";
                     progBar.style.width = "0%";
-                }, 500);
+                }, 600);
             };
         } catch (e) {
-            clearInterval(interval);
-            alert("Error generating image.");
+            clearInterval(progressTimer);
+            alert("Error. Try again!");
             genBtn.disabled = false;
         }
     };
