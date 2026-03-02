@@ -6,9 +6,9 @@
     <title>ImageBIT AI | v4 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; }
+        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.8); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: #1e293b; }
+        body { background: var(--bg); color: #1e293b; overflow-x: hidden; }
 
         /* Premium Navbar */
         .top-bar { 
@@ -21,30 +21,72 @@
         .user-name { font-weight: 800; font-size: 0.9rem; }
         .pro-label { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 800; }
 
-        /* Sidebar & Flying Tick */
-        .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1001; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .sidebar { position: fixed; top: 0; left: -350px; width: 320px; height: 100%; background: white; z-index: 1002; transition: 0.4s ease; padding: 100px 25px; border-right: 1px solid #e2e8f0; }
-        .sidebar.open { left: 0; }
-        .reward-box { background: #fff5f9; padding: 30px; border-radius: 24px; text-align: center; border: 1px solid #ffebf3; position: relative; }
+        /* Sidebar & Overlay */
+        .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1100; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
+        .gift-trigger:hover { transform: scale(1.1); }
         
-        /* Countdown Timer Style */
-        #timer-display { margin-bottom: 15px; font-size: 13px; font-weight: 700; color: var(--primary); background: #fff; padding: 8px; border-radius: 10px; border: 1px dashed var(--primary); display: none; }
+        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 100px 20px; border-right: 1px solid #e2e8f0; }
+        .sidebar.open { left: 0; }
+        
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1001; display: none; backdrop-filter: blur(4px); }
+        .overlay.active { display: block; }
+
+        /* NEW IMPROVED REWARD UI */
+        .reward-card { 
+            background: linear-gradient(145deg, #ffffff, #fff5f9); 
+            padding: 30px 20px; 
+            border-radius: 30px; 
+            text-align: center; 
+            border: 1px solid #ffebf3; 
+            position: relative; 
+            box-shadow: 0 20px 40px rgba(255, 46, 136, 0.1);
+            overflow: hidden;
+        }
+        .reward-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,46,136,0.05) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .reward-icon-circle {
+            width: 80px; height: 80px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; font-size: 32px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 2px solid #ffebf3;
+        }
+
+        #timer-display { 
+            margin: 15px 0; font-size: 12px; font-weight: 800; 
+            color: #64748b; letter-spacing: 1px; text-transform: uppercase;
+            background: #f1f5f9; padding: 6px 12px; border-radius: 20px;
+            display: inline-block;
+        }
+
+        .btn-claim {
+            width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b);
+            color: white; padding: 16px; border: none; border-radius: 18px;
+            font-weight: 800; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(255, 46, 136, 0.3);
+            position: relative; z-index: 1;
+        }
+        .btn-claim:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(255, 46, 136, 0.4); }
+        .btn-claim:disabled { background: #e2e8f0; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
 
         /* FLYING TICK */
         .success-tick { 
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); 
-            font-size: 70px; opacity: 0; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            font-size: 80px; opacity: 0; z-index: 10; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        .tick-fly { transform: translate(-50%, -50%) scale(1.3) !important; opacity: 1 !important; }
+        .tick-fly { transform: translate(-50%, -50%) scale(1.2) !important; opacity: 1 !important; }
 
         /* Generator UI */
         .container { margin: 120px auto 60px; max-width: 600px; padding: 0 20px; }
         .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
         input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; outline: none; font-size: 1rem; }
         .btn-gen { width: 100%; background: #000; color: white; padding: 18px; border: none; border-radius: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .btn-gen:disabled { background: #cbd5e1; cursor: not-allowed; }
         
-        /* Progress Bar */
         #loader { display: none; margin-bottom: 20px; }
         .bar-bg { width: 100%; height: 8px; background: #f1f5f9; border-radius: 10px; overflow: hidden; }
         .bar-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.3s; }
@@ -58,6 +100,7 @@
 <body>
 
 <div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="top-bar">
     <div class="user-info">
@@ -71,12 +114,18 @@
 </div>
 
 <div class="sidebar" id="sidebar">
-    <div class="reward-box">
-        <div class="success-tick" id="tick-icon">✅</div>
+    <div class="reward-card">
+        <div class="success-tick" id="tick-icon">✨</div>
         <div id="reward-content">
-            <h3 style="margin-bottom:10px;">Daily Gift</h3>
-            <div id="timer-display">Next gift in: --:--:--</div>
-            <button class="btn-gen" id="claim-btn" onclick="claimReward()" style="background:var(--primary); font-size:14px; padding:12px;">Claim +5 Credits</button>
+            <div class="reward-icon-circle">🎁</div>
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: #1e293b;">Daily Bonus</h2>
+            <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">Unlock your free generation credits</p>
+            
+            <div id="timer-display">Ready to claim!</div>
+            
+            <button class="btn-claim" id="claim-btn" onclick="claimReward()">
+                Claim +5 Credits
+            </button>
         </div>
     </div>
 </div>
@@ -125,8 +174,6 @@
                 document.getElementById('nav-user-name').innerText = data.displayName || "User";
                 document.getElementById('nav-pfp').src = data.pfp || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.uid}`;
                 document.getElementById('cred-display').innerText = (data.credits || 0) + " Credits";
-                
-                // Initialize Reward Check
                 updateRewardUI(data.lastClaimed);
             }
         }
@@ -135,40 +182,42 @@
     function updateRewardUI(lastClaimed) {
         const btn = document.getElementById('claim-btn');
         const display = document.getElementById('timer-display');
-
         if (!lastClaimed) return;
 
         const lastTime = lastClaimed.toDate().getTime();
-        const cooldown = 24 * 60 * 60 * 1000; // 24 Hours
+        const cooldown = 24 * 60 * 60 * 1000;
 
         const tick = () => {
             const now = new Date().getTime();
             const diff = now - lastTime;
-
             if (diff < cooldown) {
                 btn.disabled = true;
-                btn.innerText = "Locked";
-                display.style.display = "block";
+                display.style.background = "#f1f5f9";
+                display.style.color = "#64748b";
                 
                 const remaining = cooldown - diff;
                 const h = Math.floor(remaining / 3600000);
                 const m = Math.floor((remaining % 3600000) / 60000);
                 const s = Math.floor((remaining % 60000) / 1000);
-                
-                display.innerText = `Next gift in: ${h}h ${m}m ${s}s`;
+                display.innerText = `${h}h ${m}m ${s}s left`;
             } else {
                 btn.disabled = false;
-                btn.innerText = "Claim +5 Credits";
-                display.style.display = "none";
+                display.innerText = "Ready to claim!";
+                display.style.background = "rgba(255,46,136,0.1)";
+                display.style.color = "var(--primary)";
                 clearInterval(cooldownTimer);
             }
         };
-
         tick();
         cooldownTimer = setInterval(tick, 1000);
     }
 
-    window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
+    window.toggleSidebar = () => {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+    };
 
     window.claimReward = async () => {
         const userRef = doc(db, "users", auth.currentUser.uid);
@@ -176,7 +225,6 @@
             credits: increment(5),
             lastClaimed: serverTimestamp() 
         });
-        
         document.getElementById('reward-content').style.opacity = '0';
         document.getElementById('tick-icon').classList.add('tick-fly');
         setTimeout(() => location.reload(), 1300);
@@ -206,12 +254,10 @@
         const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true&model=flux`;
 
         img.src = url;
-
         img.onload = async () => {
             clearInterval(timer);
             fill.style.width = "100%";
             await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-5) });
-            
             setTimeout(() => {
                 canvas.classList.remove('shimmer');
                 img.style.display = "block";
@@ -219,10 +265,9 @@
                 btn.disabled = false;
             }, 500);
         };
-
         img.onerror = () => {
             clearInterval(timer);
-            alert("The AI node is busy. Retrying with Turbo Backup...");
+            alert("AI busy. Retrying...");
             img.src = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=512&height=512&seed=${seed}&model=turbo`;
         };
     };
