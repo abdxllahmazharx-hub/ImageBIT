@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ImageBIT AI Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
+    
     <style>
         :root {
             --primary: #ff2e88;
@@ -26,7 +28,6 @@
                               radial-gradient(at 100% 100%, rgba(255, 46, 136, 0.05) 0px, transparent 50%);
         }
 
-        /* Top Navigation */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -76,9 +77,6 @@
             transition: all 0.2s ease;
         }
 
-        .btn-buy:hover { background: var(--primary-hover); transform: translateY(-1px); }
-
-        /* Main Generator UI */
         .container {
             margin: 120px auto 60px;
             max-width: 800px;
@@ -86,14 +84,11 @@
             text-align: center;
         }
 
-        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -1px; }
-        p.subtitle { color: var(--text-muted); margin-bottom: 30px; }
-
         .generator-card {
             background: var(--card-bg);
             padding: 30px;
             border-radius: 24px;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05), 0 8px 10px -6px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
             border: 1px solid var(--border);
         }
 
@@ -105,12 +100,8 @@
             padding: 14px 18px;
             border-radius: 14px;
             border: 1px solid var(--border);
-            font-size: 1rem;
             background: #fcfcfd;
-            transition: 0.2s;
         }
-
-        input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255, 46, 136, 0.1); }
 
         .btn-generate {
             width: 100%;
@@ -122,34 +113,22 @@
             font-size: 1.1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
-            margin-top: 10px;
         }
 
-        .btn-generate:hover { background: #000; transform: scale(1.01); }
-
-        /* Output Preview */
         .output-box {
-            margin-top: 30px;
+            margin: 30px auto;
             width: 100%;
             aspect-ratio: 1/1;
             max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
             background: #f1f5f9;
             border: 2px dashed var(--border);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            position: relative;
         }
 
-        .output-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
-        .placeholder { color: var(--text-muted); font-weight: 500; padding: 20px; }
-
-        /* Modal */
+        /* Modal & PayPal Styles */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -168,41 +147,32 @@
             padding: 32px;
             width: 100%;
             max-width: 440px;
-            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
-        .modal h3 { font-size: 1.5rem; margin-bottom: 24px; }
 
         .price-option {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
+            padding: 16px;
             border: 2px solid var(--border);
             border-radius: 16px;
             margin-bottom: 12px;
             cursor: pointer;
-            transition: 0.2s;
             font-weight: 600;
         }
 
-        .price-option:hover { border-color: var(--primary); background: rgba(255, 46, 136, 0.02); }
-        .price-option.featured { border-color: var(--primary); background: rgba(255, 46, 136, 0.05); position: relative; }
-        .price-option.featured::after {
-            content: "MEGA OFFER";
-            position: absolute;
-            top: -10px; right: 15px;
-            background: var(--primary);
-            color: white; font-size: 0.65rem;
-            padding: 2px 8px; border-radius: 4px;
+        .price-option.selected {
+            border-color: var(--primary);
+            background: rgba(255, 46, 136, 0.05);
         }
 
-        .close-link { margin-top: 15px; display: inline-block; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
-
-        @media (max-width: 600px) {
-            .top-bar { padding: 10px 15px; }
-            h1 { font-size: 1.8rem; }
+        #paypal-button-container {
+            margin-top: 20px;
+            display: none; /* Hidden until a package is selected */
         }
+
+        .close-link { margin-top: 15px; display: block; color: var(--text-muted); cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
@@ -238,7 +208,6 @@
 
     <div class="output-box" id="output-box">
         <div class="placeholder" id="placeholder-text">Your generated image will appear here</div>
-        <img id="result" alt="Generated Image">
     </div>
 </div>
 
@@ -246,30 +215,22 @@
     <div class="modal">
         <h3>Refill Credits</h3>
         
-        <div class="price-option" onclick="buyCredits(10, 0.59)">
+        <div class="price-option" onclick="selectPackage(10, 0.59, this)">
             <span>10 Credits</span>
             <span>$0.59</span>
         </div>
         
-        <div class="price-option featured" onclick="buyCredits(50, 1.39)">
+        <div class="price-option" onclick="selectPackage(50, 1.39, this)">
             <span>50 Credits</span>
             <span>$1.39</span>
         </div>
         
-        <div class="price-option" onclick="buyCredits(100, 3.00)">
+        <div class="price-option" onclick="selectPackage(100, 3.00, this)">
             <span>100 Credits</span>
             <span>$3.00</span>
         </div>
 
-        <div style="margin: 20px 0; border-top: 1px solid var(--border); padding-top: 20px;">
-            <div class="price-option" onclick="subscribePro()" style="background: #1e293b; color: white; border: none;">
-                <div style="text-align: left;">
-                    <div style="font-size: 1rem;">Pro Subscription</div>
-                    <div style="font-size: 0.75rem; opacity: 0.8; font-weight: 400;">150 Credits/mo + Faster API</div>
-                </div>
-                <span>$5.99</span>
-            </div>
-        </div>
+        <div id="paypal-button-container"></div>
         
         <span class="close-link" onclick="closeModal()">Maybe later</span>
     </div>
@@ -286,8 +247,7 @@
         projectId: "imagebit-8fe75",
         storageBucket: "imagebit-8fe75.appspot.com",
         messagingSenderId: "326104098599",
-        appId: "1:326104098599:web:f2d3447a6211f2104e6b02",
-        measurementId: "G-4L17LE3VH8"
+        appId: "1:326104098599:web:f2d3447a6211f2104e6b02"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -297,13 +257,12 @@
     const creditsSpan = document.getElementById('credits');
     const planBadge = document.getElementById('plan-badge');
 
-    // Sync Auth State
+    let selectedPackageData = null;
+
     onAuthStateChanged(auth, async (user) => {
         if(!user){ window.location.href="login.html"; return; }
-
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
-
         if(userSnap.exists()){
             updateUI(userSnap.data().credits, userSnap.data().plan);
         } else {
@@ -317,34 +276,58 @@
         planBadge.innerText = `${plan} Plan`;
     }
 
-    // Modal Controls
     window.showBuyCredits = () => document.getElementById('modal').style.display='flex';
-    window.closeModal = () => document.getElementById('modal').style.display='none';
-
-    // Credit Purchase System
-    window.buyCredits = async (amount, price) => {
-        const user = auth.currentUser;
-        if(!user) return;
-
-        const userRef = doc(db, "users", user.uid);
-        
-        try {
-            // Using increment to avoid data overwriting issues
-            await updateDoc(userRef, { 
-                credits: increment(amount) 
-            });
-            
-            const snap = await getDoc(userRef);
-            updateUI(snap.data().credits, snap.data().plan);
-            
-            alert(`Payment Success! ${amount} credits added for $${price}.`);
-            window.closeModal();
-        } catch (e) {
-            alert("Error processing payment.");
-        }
+    window.closeModal = () => {
+        document.getElementById('modal').style.display='none';
+        document.getElementById('paypal-button-container').style.display = 'none';
+        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
     };
 
-    // AI Generation Logic (Credit-Gated)
+    // --- PAYPAL INTEGRATION ---
+    window.selectPackage = (amount, price, element) => {
+        selectedPackageData = { amount, price };
+        
+        // UI Selection
+        document.querySelectorAll('.price-option').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+        
+        const container = document.getElementById('paypal-button-container');
+        container.style.display = 'block';
+        container.innerHTML = ''; // Clear previous button
+
+        paypal.Buttons({
+            createOrder: (data, actions) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: { value: price.toString() },
+                        description: `${amount} ImageBIT Credits`
+                    }]
+                });
+            },
+            onApprove: async (data, actions) => {
+                return actions.order.capture().then(async (details) => {
+                    await finalizePurchase(amount);
+                });
+            },
+            onError: (err) => {
+                alert("Payment failed. Please try again.");
+            }
+        }).render('#paypal-button-container');
+    };
+
+    async function finalizePurchase(amount) {
+        const user = auth.currentUser;
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, { credits: increment(amount) });
+        
+        const snap = await getDoc(userRef);
+        updateUI(snap.data().credits, snap.data().plan);
+        
+        alert(`Success! ${amount} credits added to your account.`);
+        window.closeModal();
+    }
+
+    // --- GENERATION LOGIC (CLEANED) ---
     window.generateImage = async () => {
         const prompt = document.getElementById('prompt').value;
         const btn = document.getElementById('gen-btn');
@@ -358,56 +341,38 @@
         let currentCredits = userSnap.data().credits;
 
         if(currentCredits < cost){ 
-            alert(`Insufficient credits! You need ${cost} for this generation.`);
+            alert(`Insufficient credits! You need ${cost} for this.`);
             window.showBuyCredits();
             return; 
         }
 
-        // Processing State
-        btn.innerText = "Connecting to AI API...";
+        // Processing UI
+        btn.innerText = "Processing...";
         btn.disabled = true;
-        document.getElementById('placeholder-text').innerText = "Working on your image... Credits will be deducted shortly.";
+        document.getElementById('placeholder-text').innerHTML = `
+            <div style="text-align:center;">
+                <p><b>Credits Deducted!</b></p>
+                <p style="font-size:0.8rem; color:var(--text-muted);">The backend is not yet connected. <br> Your request: "${prompt}"</p>
+            </div>
+        `;
 
         try {
-            /* BACKEND HOOK:
-               Add your fetch() call to OpenAI/Stable Diffusion here.
-            */
-
             // Deduct Credits
-            await updateDoc(userRef, { 
-                credits: increment(-cost) 
-            });
+            await updateDoc(userRef, { credits: increment(-cost) });
             updateUI(currentCredits - cost, userSnap.data().plan);
-
-            // Simulation of response
+            
+            // Note: No random images will appear now.
             setTimeout(() => {
-                document.getElementById('placeholder-text').innerHTML = 
-                    `<div style="color:var(--primary); font-weight:700;">API Ready for Connection</div>
-                     <p style="font-size:0.85rem; margin-top:10px;">Credits deducted. Set 'img.src' to your AI URL here.</p>`;
                 btn.innerText = "Generate Image";
                 btn.disabled = false;
-            }, 1500);
+            }, 2000);
 
         } catch (err) {
-            alert("API Error. No credits were taken.");
+            alert("Error updating credits.");
             btn.innerText = "Generate Image";
             btn.disabled = false;
         }
     };
-
-    window.subscribePro = async () => {
-        const user = auth.currentUser;
-        const userRef = doc(db, "users", user.uid);
-        await updateDoc(userRef, { 
-            plan: "Pro", 
-            credits: increment(150) 
-        });
-        const snap = await getDoc(userRef);
-        updateUI(snap.data().credits, "Pro");
-        alert("Subscribed to Pro Plan!");
-        window.closeModal();
-    };
 </script>
-
 </body>
 </html>
