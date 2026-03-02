@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | Credits & Rewards</title>
+    <title>ImageBIT AI | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <script src="https://js.stripe.com/v3/"></script>
 
     <style>
@@ -18,163 +17,116 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --indigo: #6366f1;
+            --success: #10b981;
         }
+
+        /* 1. AUTH GUARD CLOAK */
+        #auth-guard { display: none; }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text-main); 
-            line-height: 1.6;
-            background-image: radial-gradient(at 0% 0%, rgba(255, 46, 136, 0.05) 0px, transparent 50%), 
-                              radial-gradient(at 100% 100%, rgba(255, 46, 136, 0.05) 0px, transparent 50%);
-        }
+        body { background: var(--bg); color: var(--text-main); overflow-x: hidden; }
 
-        /* Top Navigation */
+        /* Navigation */
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
             padding: 1rem 5%; background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px); position: fixed; width: 100%; top: 0; z-index: 100;
             border-bottom: 1px solid var(--border);
         }
+        .credit-count { font-weight: 800; color: var(--primary); background: rgba(255, 46, 136, 0.1); padding: 6px 14px; border-radius: 10px; }
+        .logout-btn { background: none; border: 1px solid var(--border); padding: 8px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.85rem; }
 
-        .credit-info { display: flex; align-items: center; gap: 12px; }
-        .credit-count { 
-            font-weight: 800; color: var(--primary); 
-            background: rgba(255, 46, 136, 0.1); 
-            padding: 6px 14px; border-radius: 10px; font-size: 0.9rem;
-        }
-
-        .btn-buy { 
-            background: var(--primary); color: white; border: none; 
-            padding: 8px 18px; border-radius: 10px; cursor: pointer; 
-            font-weight: 700; transition: 0.2s;
-        }
-        .btn-buy:hover { transform: translateY(-1px); background: var(--primary-hover); }
-
-        /* Main Interface */
+        /* Main UI */
         .container { margin: 120px auto 60px; max-width: 700px; padding: 0 20px; text-align: center; }
-        h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
-        .subtitle { color: var(--text-muted); margin-bottom: 30px; }
+        .generator-card { background: white; padding: 30px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        input, select { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 15px; outline: none; }
+        .btn-generate { width: 100%; background: var(--text-main); color: white; padding: 16px; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; }
 
-        .generator-card { 
-            background: var(--card-bg); padding: 30px; border-radius: 24px; 
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid var(--border);
+        /* Rewards Sidebar */
+        .reward-fab {
+            position: fixed; bottom: 30px; right: 30px;
+            width: 60px; height: 60px; background: var(--primary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 10px 20px rgba(255, 46, 136, 0.3);
+            z-index: 200; animation: bounce 2s infinite; font-size: 24px;
         }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        input[type="text"], select { 
-            width: 100%; padding: 14px 18px; border-radius: 14px; 
-            border: 1px solid var(--border); font-size: 1rem; margin-bottom: 15px;
-            background: #fcfcfd; outline: none;
+        .sidebar {
+            position: fixed; top: 0; right: -400px; width: 380px; height: 100%;
+            background: white; box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+            z-index: 1000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 40px 30px; overflow-y: auto;
         }
+        .sidebar.open { right: 0; }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); z-index: 999; }
 
-        .btn-generate { 
-            width: 100%; background: var(--text-main); color: white; padding: 16px; 
-            border: none; border-radius: 14px; font-size: 1.1rem; font-weight: 700; 
-            cursor: pointer; transition: 0.3s;
-        }
-        .btn-generate:hover { background: #000; }
-        .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+        .quest-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
+        .btn-claim { width: 100%; background: var(--indigo); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-claim:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
 
-        .output-box { 
-            margin-top: 30px; width: 100%; aspect-ratio: 16/9; 
-            background: #f1f5f9; border: 2px dashed var(--border); 
-            border-radius: 20px; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* Payment Popup Modal */
-        .modal-overlay { 
-            display: none; position: fixed; inset: 0; 
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); 
-            justify-content: center; align-items: center; z-index: 1000; 
-        }
-
-        .modal { 
-            background: white; border-radius: 28px; padding: 35px; 
-            width: 100%; max-width: 440px; position: relative;
-            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .modal h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 10px; }
-        .modal p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
-
-        .package { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 16px 20px; border: 2px solid var(--border); 
-            border-radius: 16px; margin-bottom: 12px; cursor: pointer; font-weight: 700;
-        }
-        .package:hover { border-color: var(--primary); }
-        .package.active { border-color: var(--primary); background: rgba(255, 46, 136, 0.05); }
-
-        #card-element { 
-            margin: 20px 0; padding: 15px; border: 1px solid var(--border); 
-            border-radius: 12px; background: #fcfcfd; 
-        }
-
-        .btn-pay { 
-            width: 100%; background: var(--indigo); color: white; padding: 16px; 
-            border: none; border-radius: 14px; font-weight: 700; cursor: pointer; 
-        }
-        .btn-pay:disabled { opacity: 0.5; }
-
-        .close-btn { 
-            position: absolute; top: 20px; right: 20px; font-size: 1.5rem; 
-            cursor: pointer; color: var(--text-muted); 
-        }
+        /* Payment Modal */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; justify-content: center; align-items: center; }
+        .modal { background: white; padding: 35px; border-radius: 28px; width: 100%; max-width: 440px; text-align: center; }
+        #card-element { margin: 20px 0; padding: 15px; border: 1px solid var(--border); border-radius: 12px; text-align: left; }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: -1px;">ImageBIT <span style="color:var(--primary)">AI</span></div>
-    <div class="credit-info">
-        <span class="credit-count" id="display-credits">Checking...</span>
-        <button class="btn-buy" onclick="openPopup()">Add Credits</button>
-    </div>
-</div>
-
-<div class="container">
-    <h1>Create Masterpieces</h1>
-    <p class="subtitle">Enter your prompt below to start generating.</p>
-    
-    <div class="generator-card">
-        <input type="text" id="prompt-input" placeholder="A majestic lion wearing a golden crown...">
-        <select id="quality-select">
-            <option value="5">Standard Resolution (5 Credits)</option>
-            <option value="10">High Definition (10 Credits)</option>
-        </select>
-        <button class="btn-generate" onclick="handleGenerate()" id="gen-btn">Generate Image</button>
+<div id="auth-guard">
+    <div class="top-bar">
+        <div style="font-weight: 800; font-size: 1.2rem;">ImageBIT AI</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <span class="credit-count" id="display-credits">...</span>
+            <button onclick="openPayment()" style="background:var(--primary); color:white; border:none; padding:8px 15px; border-radius:10px; font-weight:700; cursor:pointer;">Buy</button>
+            <button class="logout-btn" onclick="handleLogout()">Logout</button>
+        </div>
     </div>
 
-    <div class="output-box" id="status-container">
-        <div style="color: var(--text-muted); font-weight: 500;">No images generated in this session.</div>
+    <div class="container">
+        <div class="generator-card">
+            <input type="text" id="prompt-input" placeholder="A futuristic city in the style of cyberpunk...">
+            <select id="quality-select">
+                <option value="5">Standard (5 Credits)</option>
+                <option value="10">Ultra HD (10 Credits)</option>
+            </select>
+            <button class="btn-generate" onclick="handleGenerate()" id="gen-btn">Generate Image</button>
+        </div>
+        <div id="status-container" style="margin-top: 30px; color: var(--text-muted);">Ready to create masterpieces.</div>
     </div>
-</div>
 
-<div class="modal-overlay" id="payment-popup">
-    <div class="modal">
-        <span class="close-btn" onclick="closePopup()">&times;</span>
-        <h2>Refill Credits</h2>
-        <p>Choose a package to continue creating. Meezan Bank cards supported via Stripe.</p>
-        
-        <div id="packages">
-            <div class="package" onclick="selectPack(50, 2.99, this)">
-                <span>50 Credits</span> <span>$2.99</span>
-            </div>
-            <div class="package" onclick="selectPack(150, 6.99, this)">
-                <span>150 Credits</span> <span>$6.99</span>
-            </div>
+    <div class="reward-fab" onclick="toggleSidebar()">🎁</div>
+
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar" id="reward-sidebar">
+        <h2>Rewards Center</h2>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Earn credits for being active!</p>
+
+        <div class="quest-card">
+            <div style="display:flex; justify-content:space-between;"><b>Daily Bonus</b> <span style="color:var(--success)">+5</span></div>
+            <button class="btn-claim" id="daily-claim-btn" onclick="claimDailyReward()">Claim Now</button>
         </div>
 
-        <div id="card-element"></div>
-        <button class="btn-pay" id="pay-btn" onclick="processPayment()" disabled>Select a package</button>
+        <div class="quest-card">
+            <div style="display:flex; justify-content:space-between;"><b>First Masterpiece</b> <span style="color:var(--success)">+10</span></div>
+            <button class="btn-claim" id="quest-first-gen" disabled>Claim Quest</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="payment-modal">
+        <div class="modal">
+            <h2>Refill Credits</h2>
+            <p style="color:var(--text-muted)">Secure Meezan Bank payment</p>
+            <div id="card-element"></div>
+            <button class="btn-generate" onclick="processPayment()" id="pay-btn" style="background:var(--indigo)">Pay $5.00 (100 Credits)</button>
+            <p onclick="closePayment()" style="margin-top:15px; cursor:pointer; font-size: 0.9rem;">Close</p>
+        </div>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -189,138 +141,106 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
-    // Stripe Config
     const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY'); 
     const elements = stripe.elements();
-    const card = elements.create('card', { style: { base: { fontSize: '16px' } } });
+    const card = elements.create('card');
 
-    let activePack = null;
-
-    // --- AUTH & REWARDS LOGIC ---
+    // --- 1. AUTH REDIRECTION & SYNC ---
     onAuthStateChanged(auth, async (user) => {
-        if(!user) return;
-        
+        if (!user) {
+            window.location.href = "login.html"; 
+        } else {
+            document.getElementById('auth-guard').style.display = 'block';
+            await syncUserData(user);
+        }
+    });
+
+    async function syncUserData(user) {
         const userRef = doc(db, "users", user.uid);
         const snap = await getDoc(userRef);
         const today = new Date().toLocaleDateString();
 
         if(!snap.exists()) {
             // NEW USER: Gift 30 Credits
-            await setDoc(userRef, { 
-                credits: 30, 
-                lastBonusDate: today 
-            });
-            alert("Welcome! We've gifted you 30 credits to get started.");
-            refreshCredits(30);
+            const initialData = { 
+                credits: 30, lastBonusDate: "", imagesGenerated: 0, 
+                claimedFirstGen: false, email: user.email 
+            };
+            await setDoc(userRef, initialData);
+            updateUI(30);
         } else {
             const data = snap.data();
-            // DAILY BONUS: 5 Credits
-            if(data.lastBonusDate !== today) {
-                await updateDoc(userRef, { 
-                    credits: increment(5), 
-                    lastBonusDate: today 
-                });
-                alert("Daily Reward: +5 Credits added!");
-                refreshCredits(data.credits + 5);
-            } else {
-                refreshCredits(data.credits);
+            updateUI(data.credits);
+            
+            // Check Daily Button
+            const dBtn = document.getElementById('daily-claim-btn');
+            if(data.lastBonusDate === today) {
+                dBtn.innerText = "Claimed";
+                dBtn.disabled = true;
+            }
+
+            // Check Quests
+            const qBtn = document.getElementById('quest-first-gen');
+            if(data.claimedFirstGen) {
+                qBtn.innerText = "Claimed ✅";
+            } else if (data.imagesGenerated >= 1) {
+                qBtn.disabled = false;
+                qBtn.onclick = () => claimQuest('claimedFirstGen', 10);
             }
         }
-    });
-
-    function refreshCredits(val) {
-        document.getElementById('display-credits').innerText = `${val} Credits`;
     }
 
-    // --- POPUP HANDLERS ---
-    window.openPopup = () => {
-        document.getElementById('payment-popup').style.display = 'flex';
-        card.mount('#card-element');
+    function updateUI(val) { document.getElementById('display-credits').innerText = `${val} Credits`; }
+
+    window.handleLogout = () => {
+        signOut(auth).then(() => { window.location.href = "login.html"; });
     };
 
-    window.closePopup = () => {
-        document.getElementById('payment-popup').style.display = 'none';
+    window.toggleSidebar = () => {
+        document.getElementById('reward-sidebar').classList.toggle('open');
+        document.getElementById('sidebar-overlay').style.display = 
+            document.getElementById('reward-sidebar').classList.contains('open') ? 'block' : 'none';
     };
 
-    window.selectPack = (amt, price, el) => {
-        activePack = { amt, price };
-        document.querySelectorAll('.package').forEach(p => p.classList.remove('active'));
-        el.classList.add('active');
-        const btn = document.getElementById('pay-btn');
-        btn.disabled = false;
-        btn.innerText = `Confirm Payment ($${price})`;
-    };
-
-    // --- STRIPE PAYMENT ---
-    window.processPayment = async () => {
-        const btn = document.getElementById('pay-btn');
-        btn.disabled = true;
-        btn.innerText = "Securing Transaction...";
-
-        const {token, error} = await stripe.createToken(card);
-
-        if (error) {
-            alert(error.message);
-            btn.disabled = false;
-        } else {
-            // Actual Handshake Successful
-            const user = auth.currentUser;
-            const userRef = doc(db, "users", user.uid);
-            
-            await updateDoc(userRef, { credits: increment(activePack.amt) });
-            const snap = await getDoc(userRef);
-            refreshCredits(snap.data().credits);
-
-            alert(`Payment Successful! ${activePack.amt} credits added.`);
-            closePopup();
-        }
-    };
-
-    // --- GENERATE LOGIC (STRICT) ---
-    window.handleGenerate = async () => {
-        const prompt = document.getElementById('prompt-input').value;
-        const cost = parseInt(document.getElementById('quality-select').value);
-        const btn = document.getElementById('gen-btn');
-
-        if(!prompt) return alert("Enter a prompt first!");
-
+    window.claimDailyReward = async () => {
         const user = auth.currentUser;
-        const userRef = doc(db, "users", user.uid);
+        const today = new Date().toLocaleDateString();
+        await updateDoc(doc(db, "users", user.uid), { credits: increment(5), lastBonusDate: today });
+        alert("+5 Credits Claimed!");
+        location.reload();
+    };
+
+    window.claimQuest = async (key, reward) => {
+        const upd = { credits: increment(reward) };
+        upd[key] = true;
+        await updateDoc(doc(db, "users", auth.currentUser.uid), upd);
+        alert(`Quest Reward: +${reward} Credits!`);
+        location.reload();
+    };
+
+    window.handleGenerate = async () => {
+        const cost = parseInt(document.getElementById('quality-select').value);
+        const userRef = doc(db, "users", auth.currentUser.uid);
         const snap = await getDoc(userRef);
-        const currentBalance = snap.data().credits;
 
-        if(currentBalance < cost) {
-            alert("Insufficient credits. Please top up!");
-            openPopup();
-            return;
+        if(snap.data().credits < cost) return alert("Low balance!");
+
+        await updateDoc(userRef, { credits: increment(-cost), imagesGenerated: increment(1) });
+        updateUI(snap.data().credits - cost);
+        document.getElementById('status-container').innerText = "Request sent to AI queue...";
+    };
+
+    // Stripe
+    window.openPayment = () => { document.getElementById('payment-modal').style.display = 'flex'; card.mount('#card-element'); };
+    window.closePayment = () => document.getElementById('payment-modal').style.display = 'none';
+    window.processPayment = async () => {
+        const {token, error} = await stripe.createToken(card);
+        if(!error) {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(100) });
+            alert("100 Credits Added!");
+            location.reload();
         }
-
-        // Processing State
-        btn.disabled = true;
-        btn.innerText = "Verifying Credits...";
-
-        // Deduct from Firestore
-        await updateDoc(userRef, { credits: increment(-cost) });
-        refreshCredits(currentBalance - cost);
-
-        // Update UI (No images appear)
-        document.getElementById('status-container').innerHTML = `
-            <div style="text-align: center;">
-                <p style="font-weight: 700; color: var(--primary);">Credits Deducted (-${cost})</p>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;">
-                    Request for: "${prompt}" sent to queue.<br>
-                    Backend API integration needed to display results.
-                </p>
-            </div>
-        `;
-
-        setTimeout(() => {
-            btn.disabled = false;
-            btn.innerText = "Generate Image";
-        }, 1500);
     };
 </script>
-
 </body>
 </html>
