@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | v4 PRO Social</title>
+    <title>ImageBIT AI | v4 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; --gold: #ffd700; }
+        :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.95); --gold: #ffd700; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: #1e293b; overflow-x: hidden; padding-bottom: 90px; }
 
@@ -18,12 +18,18 @@
         .pro-label { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 800; }
         
         .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1100; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
-        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s; padding: 100px 20px; border-right: 1px solid #e2e8f0; }
+        .gift-trigger:hover { transform: scale(1.1); }
+
+        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 100px 20px; border-right: 1px solid #e2e8f0; }
         .sidebar.open { left: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1001; display: none; backdrop-filter: blur(4px); }
         .overlay.active { display: block; }
 
-        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 30px; border-radius: 30px; display: flex; gap: 35px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 1000; border: 1px solid #e2e8f0; }
+        .reward-card { background: linear-gradient(145deg, #ffffff, #fff5f9); padding: 30px 20px; border-radius: 30px; text-align: center; border: 1px solid #ffebf3; box-shadow: 0 20px 40px rgba(255, 46, 136, 0.1); }
+        .reward-pop { animation: rewardClaimed 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes rewardClaimed { 0% { transform: scale(1); } 50% { transform: scale(1.1); background: #f0fdf4; } 100% { transform: scale(1); } }
+
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 30px; border-radius: 30px; display: flex; gap: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 1000; border: 1px solid #e2e8f0; }
         .nav-item { cursor: pointer; font-size: 22px; opacity: 0.3; transition: 0.3s; filter: grayscale(1); }
         .nav-item.active { opacity: 1; transform: scale(1.3); filter: grayscale(0); }
 
@@ -32,45 +38,52 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .btn-gen { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; }
+        .btn-gen, .btn-claim { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
+        .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
 
-        /* --- CHAT STYLES --- */
-        .chat-container { background: white; border-radius: 24px; border: 1px solid #e2e8f0; height: 65vh; display: flex; flex-direction: column; overflow: hidden; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
-        .msg-bubble { display: flex; gap: 10px; max-width: 90%; }
-        .msg-text-wrap { background: #f1f5f9; padding: 10px 14px; border-radius: 15px; border-top-left-radius: 2px; }
-        .msg-user { font-size: 10px; font-weight: 800; color: var(--primary); display: block; }
-        .msg-shared-img { width: 100%; border-radius: 10px; margin-top: 8px; border: 1px solid #eee; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; }
-        #chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 12px; outline: none; }
+        .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
+        #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* --- GALLERY --- */
+        /* --- GALLERY & BEST CREATION --- */
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; border: 1px solid #e2e8f0; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .featured-item { grid-column: span 2; aspect-ratio: 16/9; border: 3px solid var(--gold); animation: glow 3s infinite alternate; }
-        @keyframes glow { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 15px var(--primary); } }
+        .featured-item { grid-column: span 2; aspect-ratio: 16/9; border: 3px solid var(--gold); animation: bestGlow 3s infinite alternate; }
+        @keyframes bestGlow { from { box-shadow: 0 0 5px var(--gold); } to { box-shadow: 0 0 20px var(--primary); } }
         .share-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
-        #onboarding-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
-        .setup-card { background: white; width: 90%; max-width: 400px; padding: 30px; border-radius: 30px; text-align: center; }
-        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0; }
-        .avatar-option { width: 100%; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: 0.2s; }
-        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); }
+        /* --- CHAT COMPONENTS --- */
+        .chat-container { background: white; border-radius: 24px; border: 1px solid #e2e8f0; height: 60vh; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
+        .msg-bubble { display: flex; gap: 10px; align-items: flex-start; max-width: 90%; }
+        .msg-content { background: #f1f5f9; padding: 10px 14px; border-radius: 18px; border-top-left-radius: 2px; }
+        .msg-user { font-size: 10px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 2px; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 8px; }
+        #chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 12px; outline: none; }
+
+        /* --- ONBOARDING --- */
+        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 5000; display: none; align-items: center; justify-content: center; }
+        .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; }
+        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; transition: 0.3s; object-fit: cover; }
+        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 46, 136, 0.3); }
+        .add-pfp-btn { display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 24px; color: #64748b; border: 3px dashed #cbd5e1; }
     </style>
 </head>
 <body>
 
 <div id="onboarding-overlay">
     <div class="setup-card">
-        <h2>Welcome to ImageBIT! 🚀</h2>
-        <div class="avatar-grid">
+        <h2 style="font-weight: 800; font-size: 1.5rem;">Welcome to ImageBIT! 🚀</h2>
+        <div class="avatar-grid" id="avatar-container">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Luna" class="avatar-option" onclick="selectAvatar(this.src, this)">
+            <div class="avatar-option add-pfp-btn" onclick="document.getElementById('custom-pfp-input').click()">+</div>
         </div>
-        <input type="text" id="setup-name" placeholder="Choose Username" style="width:100%; padding:12px; margin-bottom:15px; border-radius:10px; border:1px solid #ddd;">
+        <input type="file" id="custom-pfp-input" style="display:none" accept="image/*" onchange="handleCustomPfp(event)">
+        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1.5px solid #e2e8f0; margin-bottom:20px; font-size: 1rem;" placeholder="Enter username">
         <button class="btn-gen" onclick="saveProfile()">Finish Setup</button>
     </div>
 </div>
@@ -79,49 +92,50 @@
     <div class="user-info">
         <img src="" id="nav-pfp" class="user-pfp">
         <div>
-            <div class="user-name" id="nav-user-name">...</div>
+            <div class="user-name" id="nav-user-name">Loading...</div>
             <span class="pro-label">v4 PRO MEMBER</span>
         </div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 12px; border-radius:10px;">...</div>
+    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">... Credits</div>
 </div>
 
 <div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
-    <div class="card" style="text-align:center;">
-        <h2 style="font-size:1.2rem;">Daily Credits</h2>
-        <p id="timer-display" style="font-size:12px; color:#64748b; margin:10px 0;">Loading...</p>
-        <button class="btn-gen" id="claim-btn" onclick="claimReward()">Claim +5</button>
+    <div class="reward-card" id="reward-card-ui">
+        <div id="reward-emoji" style="font-size: 40px; margin-bottom: 10px;">🎁</div>
+        <h2 id="reward-title" style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
+        <div id="timer-display" style="margin: 10px 0; font-size: 12px; color: #64748b;">Checking...</div>
+        <button class="btn-claim" id="claim-btn" onclick="claimReward()">Claim +5 Credits</button>
     </div>
 </div>
 
 <div id="create-view" class="view-section active">
     <div class="card">
-        <input type="text" id="p-input" style="width:100%; padding:15px; border-radius:15px; border:1px solid #ddd; margin-bottom:15px; outline:none;" placeholder="A neon futuristic cat...">
-        <button class="btn-gen" id="gen-btn" onclick="generate()">Create (5 Credits)</button>
-        <div class="card" style="margin-top:20px; padding:10px; min-height:200px; display:flex; align-items:center; justify-content:center; border:2px dashed #eee;">
-            <img src="" id="out-img" style="width:100%; border-radius:15px; display:none;">
-            <p id="ph-text" style="color:#cbd5e1;">Magic happens here</p>
+        <input type="text" id="p-input" style="width:100%; padding:18px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:20px; outline:none;" placeholder="Describe your image...">
+        <button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
+        <div class="canvas">
+            <img src="" id="out-img">
+            <p id="ph-text" style="color:#94a3b8; font-weight:700;">Ready to Generate</p>
         </div>
     </div>
 </div>
 
 <div id="gallery-view" class="view-section">
-    <h2 style="margin-bottom:15px;">Masterpieces</h2>
+    <h2 style="margin-bottom:20px; font-weight:800;">🖼️ Masterpieces</h2>
     <div class="gallery-grid" id="user-gallery"></div>
 </div>
 
 <div id="chat-view" class="view-section">
-    <h2 style="margin-bottom:15px;">Community Chat 💬</h2>
+    <h2 style="margin-bottom:20px; font-weight:800;">💬 Community Chat</h2>
     <div class="chat-container">
         <div class="chat-messages" id="chat-display"></div>
-        <div id="share-preview" style="display:none; padding:8px; background:#fff0f6; border-top:1px solid var(--primary);">
-            <span style="font-size:10px; font-weight:800; color:var(--primary);">ATTACHED IMAGE</span>
+        <div id="share-preview" style="display:none; padding:10px; background:#fff0f6; border-top:2px solid var(--primary);">
+            <span style="font-size:10px; font-weight:800; color:var(--primary);">ATTACHING IMAGE...</span>
             <button onclick="cancelShare()" style="float:right; border:none; background:none; cursor:pointer;">✕</button>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Say something...">
+            <input type="text" id="chat-input" placeholder="Say hello...">
             <button class="btn-gen" style="width:auto; padding:0 20px;" onclick="sendChat()">Send</button>
         </div>
     </div>
@@ -136,7 +150,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, where, orderBy, getDocs, onSnapshot, increment, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, updateDoc, setDoc, increment, serverTimestamp, collection, addDoc, query, where, orderBy, getDocs, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDr6R3e_oGeLb02blsH2l9cDJZZBwVegOk",
@@ -151,8 +165,8 @@
     const db = getFirestore(app);
 
     let currentUser = null;
-    let selectedPfp = "";
-    let pendingShare = null;
+    let selectedPfpUrl = "";
+    let pendingShareUrl = null;
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
@@ -160,6 +174,7 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             if(snap.exists() && snap.data().displayName) {
                 updateUI(snap.data());
+                checkRewardTimer(snap.data().lastClaimed);
                 document.getElementById('onboarding-overlay').style.display = 'none';
                 initChat();
             } else {
@@ -181,122 +196,166 @@
         if(tab === 'gallery') loadGallery();
     };
 
-    // CHAT SYSTEM
+    // --- CHAT LOGIC ---
     function initChat() {
-        const q = query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(40));
+        const q = query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(50));
         onSnapshot(q, (snap) => {
             const display = document.getElementById('chat-display');
             display.innerHTML = "";
             snap.docs.reverse().forEach(doc => {
                 const m = doc.data();
                 display.innerHTML += `
-                    <div class="msg-bubble">
-                        <img src="${m.pfp}" style="width:30px; height:30px; border-radius:50%; object-fit:cover;">
-                        <div class="msg-text-wrap">
-                            <span class="msg-user">${m.name}</span>
-                            <div style="font-size:14px;">${m.text}</div>
-                            ${m.img ? `<img src="${m.img}" class="msg-shared-img" onclick="window.open('${m.img}')">` : ''}
-                        </div>
-                    </div>`;
+                <div class="msg-bubble">
+                    <img src="${m.pfp}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;">
+                    <div class="msg-content">
+                        <span class="msg-user">${m.name}</span>
+                        <div style="font-size:14px;">${m.text}</div>
+                        ${m.img ? `<img src="${m.img}" style="width:100%; border-radius:10px; margin-top:8px;" onclick="window.open('${m.img}')">` : ''}
+                    </div>
+                </div>`;
             });
             display.scrollTop = display.scrollHeight;
         });
     }
 
     window.sendChat = async () => {
-        const text = document.getElementById('chat-input').value.trim();
-        if(!text && !pendingShare) return;
-
-        if(pendingShare) {
-            const dayAgo = new Date(Date.now() - 24*60*60*1000);
-            const q = query(collection(db, "chat"), where("uid", "==", currentUser.uid), where("hasImg", "==", true), where("createdAt", ">", dayAgo));
-            const snap = await getDocs(q);
-            if(snap.size >= 2) return alert("Daily Limit Reached! You can only share 2 images a day.");
-        }
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if(!text && !pendingShareUrl) return;
 
         await addDoc(collection(db, "chat"), {
             uid: currentUser.uid,
             name: document.getElementById('nav-user-name').innerText,
             pfp: document.getElementById('nav-pfp').src,
             text: text,
-            img: pendingShare,
-            hasImg: !!pendingShare,
+            img: pendingShareUrl,
             createdAt: serverTimestamp()
         });
-        document.getElementById('chat-input').value = "";
+        input.value = "";
         cancelShare();
     };
 
     window.prepareShare = (url) => {
-        pendingShare = url;
+        pendingShareUrl = url;
         switchTab('chat');
-        document.getElementById('share-preview').style.display = "block";
+        document.getElementById('share-preview').style.display = 'block';
     };
 
     window.cancelShare = () => {
-        pendingShare = null;
-        document.getElementById('share-preview').style.display = "none";
+        pendingShareUrl = null;
+        document.getElementById('share-preview').style.display = 'none';
     };
 
-    // GALLERY & FEATURED
-    window.loadGallery = async () => {
-        const g = document.getElementById('user-gallery');
-        g.innerHTML = "Loading...";
-        
-        const featuredSnap = await getDocs(query(collection(db, "featured"), orderBy("createdAt", "desc"), limit(1)));
+    // --- GALLERY & FEATURED ---
+    async function loadGallery() {
+        const gallery = document.getElementById('user-gallery');
+        gallery.innerHTML = "Loading...";
+
+        // Fetch Best Creation
+        const featSnap = await getDocs(query(collection(db, "featured"), orderBy("createdAt", "desc"), limit(1)));
+        // Fetch Personal
         const userSnap = await getDocs(query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc")));
         
-        g.innerHTML = "";
-        
-        featuredSnap.forEach(doc => {
-            g.innerHTML += `
-                <div class="gallery-item featured-item">
-                    <div style="position:absolute; top:8px; left:8px; background:var(--gold); color:black; padding:2px 10px; border-radius:10px; font-size:10px; font-weight:900; z-index:5;">🏆 BEST CREATION</div>
-                    <img src="${doc.data().url}">
-                    <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-                </div>`;
+        gallery.innerHTML = "";
+
+        featSnap.forEach(doc => {
+            gallery.innerHTML += `
+            <div class="gallery-item featured-item">
+                <div style="position:absolute; top:8px; left:8px; background:var(--gold); color:black; padding:2px 10px; border-radius:10px; font-size:10px; font-weight:900; z-index:5;">🏆 BEST CREATION</div>
+                <img src="${doc.data().url}">
+                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
+            </div>`;
         });
 
         userSnap.forEach(doc => {
-            g.innerHTML += `
-                <div class="gallery-item">
-                    <img src="${doc.data().url}">
-                    <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
-                </div>`;
+            gallery.innerHTML += `
+            <div class="gallery-item">
+                <img src="${doc.data().url}" onclick="window.open('${doc.data().url}')">
+                <button class="share-btn" onclick="prepareShare('${doc.data().url}')">Share 💬</button>
+            </div>`;
         });
+    }
+
+    // --- REWARD TIMER LOGIC ---
+    function checkRewardTimer(lastClaimed) {
+        const btn = document.getElementById('claim-btn');
+        const timerText = document.getElementById('timer-display');
+        if (!lastClaimed) { timerText.innerText = "Ready to claim!"; return; }
+        const nextClaim = (lastClaimed.seconds * 1000) + (24 * 60 * 60 * 1000);
+        const interval = setInterval(() => {
+            const now = Date.now();
+            const diff = nextClaim - now;
+            if (diff <= 0) {
+                clearInterval(interval);
+                btn.disabled = false;
+                timerText.innerText = "Ready to claim!";
+                btn.innerText = "Claim +5 Credits";
+            } else {
+                btn.disabled = true;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                timerText.innerText = `Next claim in ${h}h ${m}m`;
+                btn.innerText = "Locked 🔒";
+            }
+        }, 1000);
+    }
+
+    window.claimReward = async () => {
+        const btn = document.getElementById('claim-btn');
+        const card = document.getElementById('reward-card-ui');
+        btn.disabled = true;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
+            card.classList.add('reward-pop');
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            updateUI(snap.data());
+            checkRewardTimer(snap.data().lastClaimed);
+            setTimeout(() => card.classList.remove('reward-pop'), 600);
+        } catch (e) { alert("Error!"); btn.disabled = false; }
     };
 
-    // GENERATION
     window.generate = async () => {
-        const prompt = document.getElementById('p-input').value;
+        const prompt = document.getElementById('p-input').value.trim();
         if(!prompt) return;
         const btn = document.getElementById('gen-btn');
-        btn.disabled = true; btn.innerText = "Creating...";
-        
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?nologo=true&seed=${Math.random()}`;
+        btn.disabled = true; btn.innerText = "Generating...";
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${Math.random()}`;
         const img = document.getElementById('out-img');
         img.src = url;
         img.onload = async () => {
             img.style.display = "block";
             document.getElementById('ph-text').style.display = "none";
             await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
-            await addDoc(collection(db, "creations"), { uid: currentUser.uid, url, createdAt: serverTimestamp() });
-            const s = await getDoc(doc(db, "users", currentUser.uid));
-            updateUI(s.data());
-            btn.disabled = false; btn.innerText = "Create (5 Credits)";
+            await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: url, createdAt: serverTimestamp() });
+            const snap = await getDoc(doc(db, "users", currentUser.uid));
+            updateUI(snap.data());
+            btn.disabled = false; btn.innerText = "Create Masterpiece (5 Credits)";
         };
     };
 
     window.selectAvatar = (url, el) => {
-        selectedPfp = url;
+        selectedPfpUrl = url;
         document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected'));
         el.classList.add('selected');
     };
 
+    window.handleCustomPfp = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            selectedPfpUrl = e.target.result;
+            const btn = document.querySelector('.add-pfp-btn');
+            btn.innerHTML = `<img src="${selectedPfpUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
+            selectAvatar(selectedPfpUrl, btn);
+        };
+        reader.readAsDataURL(file);
+    };
+
     window.saveProfile = async () => {
-        const name = document.getElementById('setup-name').value;
-        if(!name || !selectedPfp) return alert("Pick a name and PFP!");
-        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfp, credits: 10, lastClaimed: null });
+        const name = document.getElementById('setup-name').value.trim();
+        if(!name || !selectedPfpUrl) return alert("Complete your profile!");
+        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: null }, { merge: true });
         location.reload();
     };
 
