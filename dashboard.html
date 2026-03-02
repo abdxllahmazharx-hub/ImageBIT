@@ -8,41 +8,7 @@
     <style>
         :root { --primary: #ff2e88; --accent: #3b82f6; --bg: #f8fafc; --glass: rgba(255, 255, 255, 0.95); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: #1e293b; overflow-x: hidden; }
-
-        /* --- SETUP MODAL STYLES --- */
-        #onboarding-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px);
-            z-index: 2000; display: none; align-items: center; justify-content: center;
-        }
-        .setup-card {
-            background: white; width: 90%; max-width: 450px; padding: 40px;
-            border-radius: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-            animation: slideUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
-        .avatar-option { 
-            width: 80px; height: 80px; border-radius: 50%; cursor: pointer; 
-            border: 3px solid transparent; transition: 0.3s; object-fit: cover;
-        }
-        .avatar-option:hover { transform: scale(1.1); }
-        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 46, 136, 0.3); }
-        
-        .upload-btn {
-            width: 80px; height: 80px; border-radius: 50%; border: 2px dashed #cbd5e1;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            font-size: 24px; color: #94a3b8; transition: 0.3s; background: #f8fafc;
-        }
-        .upload-btn:hover { background: #f1f5f9; border-color: var(--accent); color: var(--accent); }
-
-        .setup-input {
-            width: 100%; padding: 16px; border-radius: 14px; border: 2px solid #f1f5f9;
-            margin-bottom: 25px; outline: none; text-align: center; font-weight: 600; font-size: 1rem;
-        }
-        .setup-input:focus { border-color: var(--primary); }
+        body { background: var(--bg); color: #1e293b; overflow-x: hidden; padding-bottom: 80px; }
 
         /* --- UI COMPONENTS --- */
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 0 5%; height: 75px; background: white; border-bottom: 1px solid #e2e8f0; position: fixed; width: 100%; top: 0; z-index: 100; }
@@ -51,69 +17,56 @@
         .user-name { font-weight: 800; font-size: 0.9rem; }
         .pro-label { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 800; }
         
-        .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1100; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.3s; }
-        .gift-trigger:hover { transform: scale(1.1); }
+        .gift-trigger { position: fixed; top: 15px; left: 20px; z-index: 1100; font-size: 24px; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
 
-        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 100px 20px; border-right: 1px solid #e2e8f0; }
-        .sidebar.open { left: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1001; display: none; backdrop-filter: blur(4px); }
-        .overlay.active { display: block; }
+        /* --- NAVIGATION TABS --- */
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 10px 25px; border-radius: 25px; display: flex; gap: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1000; border: 1px solid #e2e8f0; }
+        .nav-item { cursor: pointer; font-size: 20px; opacity: 0.4; transition: 0.3s; padding: 5px; }
+        .nav-item.active { opacity: 1; transform: scale(1.2); }
 
-        /* --- REWARD ANIMATION --- */
-        .reward-card { background: linear-gradient(145deg, #ffffff, #fff5f9); padding: 30px 20px; border-radius: 30px; text-align: center; border: 1px solid #ffebf3; position: relative; box-shadow: 0 20px 40px rgba(255, 46, 136, 0.1); overflow: hidden; }
-        
-        .reward-pop { animation: rewardClaimed 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes rewardClaimed {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); background: #f0fdf4; }
-            100% { transform: scale(1); }
-        }
+        /* --- CONTENT SECTIONS --- */
+        .view-section { display: none; width: 100%; max-width: 600px; margin: 100px auto 0; padding: 0 20px; animation: slideIn 0.4s ease; }
+        .view-section.active { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-claim, .btn-gen { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
-        
-        .container { margin: 120px auto 60px; max-width: 600px; padding: 0 20px; }
-        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
+        .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         input#p-input { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #e2e8f0; margin-bottom: 20px; outline: none; }
+        .btn-gen, .btn-claim { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; }
+        
         .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
         #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
-        /* --- GALLERY STYLES --- */
-        .gallery-header { font-weight: 800; font-size: 1.2rem; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        /* --- GALLERY --- */
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .gallery-item { border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; position: relative; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .gallery-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 10px; background: linear-gradient(transparent, rgba(0,0,0,0.7)); opacity: 0; transition: 0.3s; display: flex; justify-content: flex-end; }
-        .gallery-item:hover .gallery-overlay { opacity: 1; }
-        .dl-btn { background: white; border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; }
+
+        /* --- SIDEBAR & ONBOARDING --- */
+        .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1002; transition: 0.5s; padding: 100px 20px; border-right: 1px solid #e2e8f0; }
+        .sidebar.open { left: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); z-index: 1001; display: none; backdrop-filter: blur(4px); }
+        .overlay.active { display: block; }
+        #onboarding-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; }
+        .avatar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; }
+        .avatar-option { width: 100%; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+        .avatar-option.selected { border-color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div id="onboarding-overlay">
     <div class="setup-card">
-        <h2 style="font-weight: 800; font-size: 1.5rem;">Welcome to ImageBIT! ✨</h2>
-        <p style="color: #64748b; margin-top: 8px; font-size: 0.9rem;">Let's personalize your profile</p>
-        
+        <h2>Welcome to ImageBIT! ✨</h2>
         <div class="avatar-grid">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Buddy" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jasper" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <label class="upload-btn">
-                +
-                <input type="file" id="pfp-upload" hidden accept="image/*" onchange="handleFileUpload(this)">
-            </label>
         </div>
-
-        <input type="text" id="setup-name" class="setup-input" placeholder="Enter your display name...">
+        <input type="text" id="setup-name" style="width:100%; padding:15px; margin-bottom:20px; border-radius:12px; border:1px solid #eee;" placeholder="Display Name">
         <button class="btn-gen" onclick="saveProfile()">Start Creating</button>
     </div>
 </div>
-
-<div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
-<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="top-bar">
     <div class="user-info">
@@ -123,35 +76,41 @@
             <span class="pro-label">v4 PRO MEMBER</span>
         </div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">... Credits</div>
+    <div id="cred-display" style="font-weight:900; color:var(--primary);">... Credits</div>
 </div>
 
+<div class="gift-trigger" onclick="toggleSidebar()">🎁</div>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
 <div class="sidebar" id="sidebar">
-    <div class="reward-card" id="reward-card-ui" style="margin-bottom: 20px;">
-        <div id="reward-content">
-            <div id="reward-emoji" style="font-size: 40px; margin-bottom: 10px;">🎁</div>
-            <h2 id="reward-title" style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
-            <div id="timer-display" style="margin: 10px 0; font-size: 12px;">Ready to claim!</div>
-            <button class="btn-claim" id="claim-btn" onclick="claimReward()">Claim +5 Credits</button>
-        </div>
+    <div class="card" style="text-align:center;">
+        <h2 id="reward-emoji">🎁</h2>
+        <h3 id="reward-title">Daily Bonus</h3>
+        <p id="timer-display" style="font-size:12px; margin:10px 0;">Ready to claim!</p>
+        <button class="btn-claim" id="claim-btn" onclick="claimReward()">Claim +5 Credits</button>
     </div>
 </div>
 
-<div class="container">
+<div id="create-view" class="view-section active">
     <div class="card">
         <input type="text" id="p-input" placeholder="A futuristic lion made of neon glass...">
         <button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
-        <div class="canvas" id="canvas">
+        <div class="canvas">
             <img src="" id="out-img">
             <p id="ph-text" style="color:#94a3b8; font-weight:700;">Ready to Generate</p>
         </div>
     </div>
+</div>
 
-    <div class="card">
-        <div class="gallery-header">🖼️ Your Creations</div>
-        <div class="gallery-grid" id="user-gallery">
-            </div>
-    </div>
+<div id="gallery-view" class="view-section">
+    <h2 style="margin-bottom:20px; font-weight:800;">🖼️ Your Gallery</h2>
+    <div class="gallery-grid" id="user-gallery">
+        </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" id="nav-create" onclick="switchTab('create')">🎨</div>
+    <div class="nav-item" id="nav-gallery" onclick="switchTab('gallery')">🖼️</div>
 </div>
 
 <script type="module">
@@ -171,15 +130,13 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let selectedPfpUrl = "";
     let currentUser = null;
+    let selectedPfpUrl = "";
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             currentUser = user;
-            const userRef = doc(db, "users", user.uid);
-            const snap = await getDoc(userRef);
-            
+            const snap = await getDoc(doc(db, "users", user.uid));
             if(snap.exists() && snap.data().displayName) {
                 updateUI(snap.data());
                 loadGallery();
@@ -195,49 +152,43 @@
         document.getElementById('cred-display').innerText = (data.credits || 0) + " Credits";
     }
 
+    // --- TAB SWITCHER ---
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        if(tab === 'create') {
+            document.getElementById('create-view').classList.add('active');
+            document.getElementById('nav-create').classList.add('active');
+        } else {
+            document.getElementById('gallery-view').classList.add('active');
+            document.getElementById('nav-gallery').classList.add('active');
+            loadGallery();
+        }
+    };
+
     async function loadGallery() {
-        const galleryEl = document.getElementById('user-gallery');
-        galleryEl.innerHTML = "";
-        
+        const gallery = document.getElementById('user-gallery');
+        gallery.innerHTML = "Loading...";
         const q = query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        
-        querySnapshot.forEach((doc) => {
+        const snap = await getDocs(q);
+        gallery.innerHTML = "";
+        snap.forEach(doc => {
             const data = doc.data();
-            const item = document.createElement('div');
-            item.className = "gallery-item";
-            item.innerHTML = `
-                <img src="${data.url}" alt="Creation">
-                <div class="gallery-overlay">
-                    <button class="dl-btn" onclick="window.open('${data.url}', '_blank')">⬇️</button>
-                </div>
-            `;
-            galleryEl.appendChild(item);
+            gallery.innerHTML += `<div class="gallery-item"><img src="${data.url}" onclick="window.open('${data.url}')"></div>`;
         });
     }
 
-    // --- Window functions for HTML access ---
     window.selectAvatar = (url, el) => {
         selectedPfpUrl = url;
-        document.querySelectorAll('.avatar-option').forEach(img => img.classList.remove('selected'));
+        document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected'));
         el.classList.add('selected');
-    };
-
-    window.handleFileUpload = (input) => {
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => { selectedPfpUrl = e.target.result; alert("Image selected!"); };
-            reader.readAsDataURL(file);
-        }
     };
 
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value.trim();
-        if(!name || !selectedPfpUrl) return alert("Please pick an avatar and name!");
-        await setDoc(doc(db, "users", currentUser.uid), {
-            displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: 0
-        }, { merge: true });
+        if(!name || !selectedPfpUrl) return alert("Missing info!");
+        await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10, lastClaimed: 0 }, { merge: true });
         location.reload();
     };
 
@@ -248,52 +199,29 @@
 
     window.claimReward = async () => {
         const btn = document.getElementById('claim-btn');
-        const card = document.getElementById('reward-card-ui');
-        btn.disabled = true; btn.innerText = "Claiming...";
-        try {
-            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
-            card.classList.add('reward-pop');
-            document.getElementById('reward-emoji').innerText = "✅";
-            document.getElementById('reward-title').innerText = "Credits Added!";
-            btn.innerText = "Claimed!";
-            const snap = await getDoc(doc(db, "users", currentUser.uid));
-            updateUI(snap.data());
-        } catch (e) { alert("Error claiming reward."); btn.disabled = false; }
+        btn.disabled = true;
+        await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
+        document.getElementById('reward-title').innerText = "Claimed!";
+        const snap = await getDoc(doc(db, "users", currentUser.uid));
+        updateUI(snap.data());
     };
 
     window.generate = async () => {
         const prompt = document.getElementById('p-input').value.trim();
         if(!prompt) return;
-        
-        // Check credits
-        const userSnap = await getDoc(doc(db, "users", currentUser.uid));
-        if(userSnap.data().credits < 5) return alert("Not enough credits!");
-
         const btn = document.getElementById('gen-btn');
         btn.disabled = true; btn.innerText = "Generating...";
-
-        const seed = Math.floor(Math.random() * 1000000);
-        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
         
+        const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${Math.random()}`;
         const img = document.getElementById('out-img');
         img.src = url;
         img.onload = async () => {
             img.style.display = "block";
             document.getElementById('ph-text').style.display = "none";
-            
-            // Deduct credits and save to gallery
             await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
-            await addDoc(collection(db, "creations"), {
-                uid: currentUser.uid,
-                url: url,
-                prompt: prompt,
-                createdAt: serverTimestamp()
-            });
-
+            await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: url, prompt: prompt, createdAt: serverTimestamp() });
             const snap = await getDoc(doc(db, "users", currentUser.uid));
             updateUI(snap.data());
-            loadGallery(); // Refresh gallery
-            
             btn.disabled = false; btn.innerText = "Create Masterpiece (5 Credits)";
         };
     };
