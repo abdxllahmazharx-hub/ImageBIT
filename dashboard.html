@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ImageBIT AI | v4.8 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root { --primary: #ff2e88; --dark: #000000; --accent: #3b82f6; --bg: #f8fafc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -25,6 +26,22 @@
         .sidebar.open { left: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1101; display: none; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
+
+        /* --- BUY/DONATE STYLES --- */
+        .buy-container { position: relative; display: flex; align-items: center; gap: 8px; }
+        .main-buy-trigger { background: var(--primary); color: white; border: none; padding: 6px 15px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .donate-trigger { background: #1e293b; color: white; border: none; padding: 6px 15px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .main-buy-trigger:hover, .donate-trigger:hover { transform: scale(1.05); }
+
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 45px; background: white; width: 220px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 12px; z-index: 2000; border: 1px solid #eee; }
+        .dropdown-menu.show { display: block; }
+
+        .option { display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; border: 1px solid #f0f0f0; border-radius: 10px; cursor: pointer; transition: 0.2s; }
+        .option:hover { border-color: var(--primary); background: #fff5f6; }
+        .option span { font-size: 13px; font-weight: 700; }
+        .price { color: var(--primary); font-weight: 800; }
+        .mega { border: 2px solid #ffd700; background: #fffef0; }
+        .mega-label { font-size: 9px; background: #ffd700; color: black; padding: 2px 5px; border-radius: 4px; display: block; width: fit-content; margin-bottom: 3px; font-weight: 900; }
 
         /* --- POPUP --- */
         #win-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.5); background: white; padding: 35px; border-radius: 30px; z-index: 2000; display: none; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.4); width: 300px; }
@@ -70,7 +87,32 @@
         <img src="" id="nav-pfp" class="user-pfp">
         <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.8 PRO</span></div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary);">... Credits</div>
+    
+    <div class="buy-container">
+        <div id="cred-display" style="font-weight:900; color:var(--primary); margin-right: 10px;">... Credits</div>
+        
+        <div style="position:relative;">
+            <button class="main-buy-trigger" onclick="toggleMenu(event, 'buyMenu')">+ BUY</button>
+            <div id="buyMenu" class="dropdown-menu">
+                <div class="option" onclick="payWithStripe(0.59)"><span>10 Credits</span><span class="price">$0.59</span></div>
+                <div class="option" onclick="payWithStripe(1.99)"><span>50 Credits</span><span class="price">$1.99</span></div>
+                <div class="option mega" onclick="payWithStripe(6.99)">
+                    <div><span class="mega-label">MEGA OFFER</span><span>200 Credits</span></div>
+                    <span class="price">$6.99</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="position:relative;">
+            <button class="donate-trigger" onclick="toggleMenu(event, 'donateMenu')">❤️ DONATE</button>
+            <div id="donateMenu" class="dropdown-menu">
+                <div class="option" onclick="handleDonate(1)"><span>Support Me</span><span class="price">$1</span></div>
+                <div class="option" onclick="handleDonate(5)"><span>Coffee Tip</span><span class="price">$5</span></div>
+                <div class="option" onclick="handleDonate(20)"><span>Big Help</span><span class="price">$20</span></div>
+                <div class="option mega" onclick="handleDonate(100)"><span>God Tier</span><span class="price">$100</span></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="trigger-btn gift-trigger" onclick="openRewards()">🎁</div>
@@ -174,6 +216,8 @@
     let currentUser = null;
     let totalRotation = 0;
 
+    const stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
     onAuthStateChanged(auth, async (user) => {
         if (!user) { window.location.href = "login.html"; return; }
         currentUser = user;
@@ -193,6 +237,50 @@
         document.getElementById('cred-display').innerText = d.credits + " Credits";
     }
 
+    // --- MENU LOGIC ---
+    window.toggleMenu = (event, id) => {
+        event.stopPropagation();
+        const menus = ['buyMenu', 'donateMenu'];
+        menus.forEach(m => {
+            if (m === id) {
+                document.getElementById(m).classList.toggle('show');
+            } else {
+                document.getElementById(m).classList.remove('show');
+            }
+        });
+    };
+
+    window.payWithStripe = (amount) => {
+        let baseUrl = "";
+        if(amount === 0.59) baseUrl = "https://buy.stripe.com/28E28qezj2I7agd25k5gc02";
+        if(amount === 1.99) baseUrl = "https://buy.stripe.com/14A4gygHraaz2NL25k5gc01";
+        if(amount === 6.99) baseUrl = "https://buy.stripe.com/7sY4gy9eZbeD885dO25gc00";
+
+        if(baseUrl && currentUser) {
+            // Updated to pass UID so VPS knows who paid
+            const finalUrl = `${baseUrl}?client_reference_id=${currentUser.uid}`;
+            window.location.href = finalUrl;
+        }
+    };
+
+    window.handleDonate = (val) => {
+        let baseUrl = "";
+        if(val === 1) baseUrl = "https://buy.stripe.com/your_1_dollar_link";
+        if(val === 5) baseUrl = "https://buy.stripe.com/your_5_dollar_link";
+        if(val === 20) baseUrl = "https://buy.stripe.com/your_20_dollar_link";
+        if(val === 100) baseUrl = "https://buy.stripe.com/your_100_dollar_link";
+
+        if(baseUrl && currentUser) {
+            const finalUrl = `${baseUrl}?client_reference_id=${currentUser.uid}`;
+            window.location.href = finalUrl;
+        }
+    };
+
+    window.addEventListener('click', () => {
+        document.getElementById('buyMenu').classList.remove('show');
+        document.getElementById('donateMenu').classList.remove('show');
+    });
+
     // --- DAILY GIFT ---
     window.claimReward = async () => {
         await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
@@ -209,24 +297,20 @@
         wheel.style.transform = `rotate(${totalRotation}deg)`;
 
         setTimeout(async () => {
-    const segmentSize = 360 / 6; // 6 slices
-    const finalAngle = totalRotation % 360;
+            const segmentSize = 360 / 6;
+            const finalAngle = totalRotation % 360;
+            const adjustedAngle = (360 - finalAngle + 90) % 360;
+            const prizeIndex = Math.floor(adjustedAngle / segmentSize);
+            const prizes = [10, 5, 20, 1, 50, 3];
+            const winAmount = prizes[prizeIndex];
 
-    // Because pointer is at top (0deg visually)
-    const adjustedAngle = (360 - finalAngle + 90) % 360;
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                credits: increment(winAmount),
+                lastSpin: serverTimestamp()
+            });
 
-    const prizeIndex = Math.floor(adjustedAngle / segmentSize);
-
-    const prizes = [10, 5, 20, 1, 50, 3];
-    const winAmount = prizes[prizeIndex];
-
-    await updateDoc(doc(db, "users", currentUser.uid), {
-        credits: increment(winAmount),
-        lastSpin: serverTimestamp()
-    });
-
-    showWinPopup("🎊", `+${winAmount} Credits!`, "Lucky winner!");
-}, 5100);
+            showWinPopup("🎊", `+${winAmount} Credits!`, "Lucky winner!");
+        }, 5100);
     };
 
     function showWinPopup(emoji, title, sub) {
@@ -317,5 +401,3 @@
 </script>
 </body>
 </html>
-
-
