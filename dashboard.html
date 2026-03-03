@@ -209,14 +209,21 @@
         wheel.style.transform = `rotate(${totalRotation}deg)`;
 
         setTimeout(async () => {
-            const finalAngle = (totalRotation % 360);
-            const prizes = [10, 3, 50, 1, 20, 5];
-            const prizeIndex = Math.floor(((360 - finalAngle + 30) % 360) / 60);
-            const winAmount = prizes[prizeIndex];
+    const finalAngle = (totalRotation % 360);
 
-            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(winAmount), lastSpin: serverTimestamp() });
-            showWinPopup("🎊", `+${winAmount} Credits!`, "Lucky winner!");
-        }, 5100);
+    // Correct order based on your SVG layout
+    const prizes = [10, 5, 20, 1, 50, 3];
+
+    const prizeIndex = Math.floor(((360 - finalAngle + 30) % 360) / 60);
+    const winAmount = prizes[prizeIndex];
+
+    await updateDoc(doc(db, "users", currentUser.uid), {
+        credits: increment(winAmount),
+        lastSpin: serverTimestamp()
+    });
+
+    showWinPopup("🎊", `+${winAmount} Credits!`, "Lucky winner!");
+}, 5100);
     };
 
     function showWinPopup(emoji, title, sub) {
@@ -307,3 +314,4 @@
 </script>
 </body>
 </html>
+
