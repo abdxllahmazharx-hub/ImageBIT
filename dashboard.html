@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | v4.4 PRO</title>
+    <title>ImageBIT AI | v4.5 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #ff2e88; --dark: #000000; --accent: #3b82f6; --bg: #f8fafc; }
@@ -26,11 +26,28 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1101; display: none; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
 
-        /* --- WHEEL GRAPHICS --- */
-        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
-        #main-wheel { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); }
-        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 35px; }
-        
+        /* --- PREMIUM WHEEL GRAPHICS --- */
+        .wheel-container { 
+            position: relative; 
+            width: 290px; 
+            height: 290px; 
+            margin: 20px auto; 
+            padding: 8px;
+            background: radial-gradient(circle, #ce9e1c 0%, #8e6d13 100%); 
+            border-radius: 50%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 0 10px rgba(255,255,255,0.4);
+        }
+        .wheel-container::after {
+            content: ""; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 2px dashed rgba(255,255,255,0.5); border-radius: 50%;
+            animation: rotateLights 15s linear infinite;
+        }
+        @keyframes rotateLights { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #main-wheel { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2)); }
+        .wheel-pointer { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 100; font-size: 40px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); color: #ffd700; }
+        .wheel-text { fill: white; font-size: 5.5px; font-weight: 900; text-shadow: 1px 1px 2px rgba(0,0,0,0.6); }
+
         /* --- LEADERBOARD --- */
         .leader-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .leader-rank { font-weight: 900; color: var(--primary); min-width: 25px; }
@@ -54,7 +71,7 @@
 <div class="top-bar">
     <div class="user-info">
         <img src="" id="nav-pfp" class="user-pfp">
-        <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.4 PRO</span></div>
+        <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.5 PRO</span></div>
     </div>
     <div id="cred-display" style="font-weight:900; color:var(--primary);">... Credits</div>
 </div>
@@ -74,23 +91,36 @@
 
 <div class="sidebar" id="sidebar-wheel">
     <div style="text-align: center;">
-        <h2>Lucky Wheel</h2>
+        <h2 style="font-weight: 800;">Lucky Spinner</h2>
+        <p style="font-size: 10px; color: var(--primary); font-weight: 700; margin-bottom: 5px;">BIG PRIZES INSIDE</p>
         <div class="wheel-container">
             <div class="wheel-pointer">▼</div>
             <svg id="main-wheel" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="48" fill="#2d3436" stroke="#ffd700" stroke-width="2"/>
-                <path d="M50 50 L100 50 A50 50 0 0 1 75 93.3 Z" fill="#ff2e88" />
-                <path d="M50 50 L75 93.3 A50 50 0 0 1 25 93.3 Z" fill="#3b82f6" />
-                <path d="M50 50 L25 93.3 A50 50 0 0 1 0 50 Z" fill="#10b981" />
-                <path d="M50 50 L0 50 A50 50 0 0 1 25 6.7 Z" fill="#ffd700" />
-                <path d="M50 50 L25 6.7 A50 50 0 0 1 75 6.7 Z" fill="#8b5cf6" />
-                <path d="M50 50 L75 6.7 A50 50 0 0 1 100 50 Z" fill="#ff6b6b" />
-                <text x="72" y="53" fill="white" font-size="5" font-weight="900" transform="rotate(30 50 50)">10⚡</text>
-                <text x="72" y="53" fill="white" font-size="5" font-weight="900" transform="rotate(150 50 50)">20⚡</text>
-                <text x="72" y="53" fill="white" font-size="5" font-weight="900" transform="rotate(270 50 50)">50⚡</text>
+                <defs>
+                    <radialGradient id="g1"><stop offset="0%" stop-color="#ff2e88"/><stop offset="100%" stop-color="#c02167"/></radialGradient>
+                    <radialGradient id="g2"><stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#2563eb"/></radialGradient>
+                    <radialGradient id="g3"><stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/></radialGradient>
+                    <radialGradient id="g4"><stop offset="0%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></radialGradient>
+                    <radialGradient id="g5"><stop offset="0%" stop-color="#8b5cf6"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+                    <radialGradient id="g6"><stop offset="0%" stop-color="#ff6b6b"/><stop offset="100%" stop-color="#ee5253"/></radialGradient>
+                </defs>
+                <path d="M50 50 L100 50 A50 50 0 0 1 75 93.3 Z" fill="url(#g1)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <path d="M50 50 L75 93.3 A50 50 0 0 1 25 93.3 Z" fill="url(#g2)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <path d="M50 50 L25 93.3 A50 50 0 0 1 0 50 Z" fill="url(#g3)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <path d="M50 50 L0 50 A50 50 0 0 1 25 6.7 Z" fill="url(#g4)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <path d="M50 50 L25 6.7 A50 50 0 0 1 75 6.7 Z" fill="url(#g5)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                <path d="M50 50 L75 6.7 A50 50 0 0 1 100 50 Z" fill="url(#g6)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+                
+                <text x="72" y="53" class="wheel-text" transform="rotate(30 50 50)">10⚡</text>
+                <text x="72" y="53" class="wheel-text" transform="rotate(90 50 50)">5⚡</text>
+                <text x="72" y="53" class="wheel-text" transform="rotate(150 50 50)">20⚡</text>
+                <text x="72" y="53" class="wheel-text" transform="rotate(210 50 50)">1⚡</text>
+                <text x="72" y="53" class="wheel-text" transform="rotate(270 50 50)">50⚡</text>
+                <text x="72" y="53" class="wheel-text" transform="rotate(330 50 50)">WIN</text>
+                <circle cx="50" cy="50" r="6" fill="white" stroke="#ffd700" stroke-width="1.5"/>
             </svg>
         </div>
-        <p id="wheel-timer-text" style="font-size: 12px; margin-bottom: 10px;"></p>
+        <p id="wheel-timer-text" style="font-size: 12px; margin-bottom: 10px; font-weight: 600;"></p>
         <button class="btn-gen" id="spin-btn" onclick="spinWheel()">SPIN (+10 Credits)</button>
     </div>
 </div>
@@ -169,33 +199,23 @@
         document.getElementById('cred-display').innerText = d.credits + " Credits";
     }
 
-    // --- SPIN LOGIC (FIXED) ---
     window.spinWheel = async () => {
         const wheel = document.getElementById('main-wheel');
         const btn = document.getElementById('spin-btn');
         btn.disabled = true;
-        
         currentRotation += Math.floor(Math.random() * 360) + 2880; 
         wheel.style.transform = `rotate(${currentRotation}deg)`;
-
         setTimeout(async () => {
-            // Updated to add 10 credits and use a unique field for the wheel timer
-            await updateDoc(doc(db, "users", currentUser.uid), { 
-                credits: increment(10), 
-                lastSpin: serverTimestamp() 
-            });
+            await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(10), lastSpin: serverTimestamp() });
             alert("🎡 YOU WON 10 CREDITS!");
         }, 5100);
     };
 
-    // --- SEPARATE TIMERS (FIXED) ---
     function checkTimers(lastGift, lastSpin) {
         const giftBtn = document.getElementById('claim-btn');
         const spinBtn = document.getElementById('spin-btn');
         const now = Date.now();
         const day = 86400000;
-
-        // Daily Gift Logic
         if(lastGift) {
             const diff = (lastGift.seconds * 1000 + day) - now;
             if(diff > 0) {
@@ -203,8 +223,6 @@
                 document.getElementById('gift-timer-text').innerText = "Wait " + Math.floor(diff/3600000) + "h";
             } else { giftBtn.disabled = false; document.getElementById('gift-timer-text').innerText = "Ready!"; }
         }
-
-        // Spin Wheel Logic (Independent)
         if(lastSpin) {
             const diff = (lastSpin.seconds * 1000 + day) - now;
             if(diff > 0) {
