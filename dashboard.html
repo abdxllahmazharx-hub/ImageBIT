@@ -35,44 +35,33 @@
 
         .view-section { display: none; width: 100%; max-width: 800px; margin: 110px auto 0; padding: 0 20px; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .card { background: white; padding: 30px; border-radius: 28px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .btn-gen, .btn-claim { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s; }
-        
+        .btn-claim:disabled { background: #cbd5e1; cursor: not-allowed; }
+
         .loading-wrap { width: 100%; margin-bottom: 20px; display: none; }
         .bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 8px; }
-        .bar-fill { width: 0%; height: 100%; background: var(--accent); box-shadow: 0 0 10px var(--accent); transition: 0.4s; }
+        .bar-fill { width: 0%; height: 100%; background: var(--accent); transition: 0.4s; }
 
         .canvas { width: 100%; aspect-ratio: 1/1; background: #f1f5f9; border-radius: 24px; margin-top: 25px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; }
         #out-img { width: 100%; height: 100%; object-fit: cover; display: none; }
 
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .gallery-item { position: relative; border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; border: 1px solid #e2e8f0; }
+        .gallery-item { border-radius: 20px; overflow: hidden; aspect-ratio: 1/1; background: #eee; border: 1px solid #e2e8f0; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .share-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(255,255,255,0.9); border: none; padding: 5px 10px; border-radius: 10px; font-size: 10px; font-weight: 800; cursor: pointer; }
 
-        .social-layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; }
         .chat-container { background: white; border-radius: 24px; border: 1px solid #e2e8f0; height: 60vh; display: flex; flex-direction: column; overflow: hidden; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #fafafa; }
         .msg-bubble { display: flex; gap: 10px; align-items: flex-start; max-width: 90%; }
-        .msg-content { background: #f1f5f9; padding: 10px 14px; border-radius: 18px; border-top-left-radius: 2px; }
-        .msg-user { font-size: 10px; font-weight: 800; color: var(--primary); display: block; margin-bottom: 2px; }
-        .chat-input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 8px; }
-        #chat-input { flex: 1; border: 1px solid #e2e8f0; padding: 10px; border-radius: 12px; outline: none; }
-
-        .leaderboard-card { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 20px; height: 60vh; overflow-y: auto; }
-        .leader-item { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
-        .leader-rank { font-weight: 900; color: var(--primary); width: 25px; font-size: 0.8rem; }
-        .leader-name { flex: 1; font-weight: 700; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .leader-score { font-size: 10px; background: #fff1f6; color: var(--primary); padding: 2px 8px; border-radius: 8px; font-weight: 800; }
+        .msg-content { background: #f1f5f9; padding: 10px 14px; border-radius: 18px; border-top-left-radius: 2px; font-size: 14px; }
+        .msg-user { font-size: 10px; font-weight: 800; color: var(--primary); display: block; }
 
         #onboarding-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(15px); z-index: 5000; display: none; align-items: center; justify-content: center; }
         .setup-card { background: white; width: 90%; max-width: 450px; padding: 40px; border-radius: 32px; text-align: center; }
         .avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 25px 0; }
-        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; transition: 0.3s; object-fit: cover; }
-        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 46, 136, 0.3); }
-        .add-pfp-btn { display: flex; align-items: center; justify-content: center; background: #f1f5f9; font-size: 24px; color: #64748b; border: 3px dashed #cbd5e1; }
+        .avatar-option { width: 100%; aspect-ratio: 1/1; border-radius: 50%; border: 3px solid #f1f5f9; cursor: pointer; object-fit: cover; }
+        .avatar-option.selected { border-color: var(--primary); transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -84,14 +73,14 @@
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSnN1ZO7xHHC5KK5qAbYfboNMh6DtekBuhwYw&s" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://avatars.githubusercontent.com/u/77607225?v=4" class="avatar-option" onclick="selectAvatar(this.src, this)">
             <img src="https://pbs.twimg.com/media/DUR7PaeXUAM_Tuz.png" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=CoolAI" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Future" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Style" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <img src="https://api.dicebear.com/7.x/micah/svg?seed=Art" class="avatar-option" onclick="selectAvatar(this.src, this)">
-            <div class="avatar-option add-pfp-btn" onclick="document.getElementById('custom-pfp-input').click()">+</div>
+            <img src="https://i.pinimg.com/236x/45/eb/83/45eb83dfda190184356895994402206d.jpg" class="avatar-option" onclick="selectAvatar(this.src, this)">
+            <img src="https://pbs.twimg.com/media/Gvrjpc9WYAAPOtr.jpg" class="avatar-option" onclick="selectAvatar(this.src, this)">
+            <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Aesthetic" class="avatar-option" onclick="selectAvatar(this.src, this)">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Vibe" class="avatar-option" onclick="selectAvatar(this.src, this)">
+            <div class="avatar-option" style="display:flex;align-items:center;justify-content:center;background:#eee;font-size:20px;font-weight:bold;border:2px dashed #ccc" onclick="document.getElementById('custom-pfp-input').click()">+</div>
         </div>
         <input type="file" id="custom-pfp-input" style="display:none" accept="image/*" onchange="handleCustomPfp(event)">
-        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1.5px solid #e2e8f0; margin-bottom:20px;" placeholder="Enter username">
+        <input type="text" id="setup-name" style="width:100%; padding:15px; border-radius:12px; border:1px solid #ddd; margin-bottom:20px;" placeholder="Username">
         <button class="btn-gen" onclick="saveProfile()">Finish Setup</button>
     </div>
 </div>
@@ -111,9 +100,9 @@
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
     <div class="reward-card" id="reward-card-ui">
-        <div id="reward-emoji" style="font-size: 40px; margin-bottom: 10px;">🎁</div>
-        <h2 id="reward-title" style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
-        <div id="timer-display" style="margin: 10px 0; font-size: 12px; color: #64748b;">Checking...</div>
+        <div style="font-size: 40px; margin-bottom: 10px;">🎁</div>
+        <h2 style="font-size: 1.2rem; font-weight: 800;">Daily Bonus</h2>
+        <div id="timer-display" style="margin: 10px 0; font-size: 12px; color: #64748b;">Ready!</div>
         <button class="btn-claim" id="claim-btn" onclick="claimReward()">Claim +5 Credits</button>
     </div>
 </div>
@@ -139,22 +128,16 @@
 </div>
 
 <div id="gallery-view" class="view-section">
-    <h2 style="margin-bottom:20px; font-weight:800;">🖼️ Masterpieces</h2>
+    <h2 style="margin-bottom:20px; font-weight:800;">🖼️ Gallery</h2>
     <div class="gallery-grid" id="user-gallery"></div>
 </div>
 
 <div id="chat-view" class="view-section">
-    <div class="social-layout">
-        <div class="chat-container">
-            <div class="chat-messages" id="chat-display"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Say hello...">
-                <button class="btn-gen" style="width:auto; padding:0 20px;" onclick="sendChat()">Send</button>
-            </div>
-        </div>
-        <div class="leaderboard-card">
-            <h3 style="font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 15px;">🏆 TOP CREATORS</h3>
-            <div id="leaderboard-list"></div>
+    <div class="chat-container">
+        <div class="chat-messages" id="chat-display"></div>
+        <div style="padding:15px; display:flex; gap:10px;">
+            <input type="text" id="chat-input" style="flex:1; border:1px solid #ddd; padding:10px; border-radius:12px; outline:none;" placeholder="Chat...">
+            <button class="btn-gen" style="width:auto; padding:0 20px;" onclick="sendChat()">Send</button>
         </div>
     </div>
 </div>
@@ -185,18 +168,21 @@
     let currentUser = null;
     let selectedPfpUrl = "";
 
+    // LOGIN GUARD: Redirect to login.html if not logged in
     onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            const snap = await getDoc(doc(db, "users", user.uid));
-            if(snap.exists() && snap.data().displayName) {
-                updateUI(snap.data());
-                document.getElementById('onboarding-overlay').style.display = 'none';
-                initChat();
-                initLeaderboard();
-            } else {
-                document.getElementById('onboarding-overlay').style.display = 'flex';
-            }
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+        currentUser = user;
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if(snap.exists() && snap.data().displayName) {
+            updateUI(snap.data());
+            checkRewardTimer(snap.data().lastClaimed);
+            document.getElementById('onboarding-overlay').style.display = 'none';
+            initChat();
+        } else {
+            document.getElementById('onboarding-overlay').style.display = 'flex';
         }
     });
 
@@ -206,30 +192,67 @@
         document.getElementById('cred-display').innerText = (data.credits || 0) + " Credits";
     }
 
-    window.switchTab = (tab) => {
-        document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
-        document.getElementById(tab + '-view').classList.add('active');
-        document.getElementById('nav-' + tab).classList.add('active');
-        if(tab === 'gallery') loadGallery();
+    // REWARD SYSTEM FIX
+    function checkRewardTimer(lastClaimed) {
+        const btn = document.getElementById('claim-btn');
+        const timerText = document.getElementById('timer-display');
+        
+        if (!lastClaimed) {
+            btn.disabled = false;
+            timerText.innerText = "Ready to claim!";
+            return;
+        }
+
+        const lastClaimTime = lastClaimed.toMillis ? lastClaimed.toMillis() : lastClaimed.seconds * 1000;
+        const nextClaimTime = lastClaimTime + (24 * 60 * 60 * 1000);
+
+        const updateTimer = () => {
+            const now = Date.now();
+            const diff = nextClaimTime - now;
+
+            if (diff <= 0) {
+                btn.disabled = false;
+                btn.innerText = "Claim +5 Credits";
+                timerText.innerText = "Ready to claim!";
+                clearInterval(intv);
+            } else {
+                btn.disabled = true;
+                btn.innerText = "Locked 🔒";
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                timerText.innerText = `Next claim in ${h}h ${m}m`;
+            }
+        };
+        const intv = setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+
+    window.claimReward = async () => {
+        const btn = document.getElementById('claim-btn');
+        btn.disabled = true;
+        try {
+            await updateDoc(doc(db, "users", currentUser.uid), { 
+                credits: increment(5), 
+                lastClaimed: serverTimestamp() 
+            });
+            alert("Credits Added!");
+            location.reload();
+        } catch(e) { alert("Error claiming reward"); btn.disabled = false; }
     };
 
-    // --- GENERATE FUNCTION (STABLE DIFFUSION) ---
+    // GENERATE (STABLE DIFFUSION)
     window.generate = async () => {
         const prompt = document.getElementById('p-input').value.trim();
-        if (!prompt) return alert("Enter a prompt first!");
-        
+        if (!prompt) return alert("Enter a prompt!");
         const btn = document.getElementById('gen-btn');
         const loadWrap = document.getElementById('loading-wrap');
         const barFill = document.getElementById('bar-fill');
         const percText = document.getElementById('load-perc');
         const img = document.getElementById('out-img');
-        const phText = document.getElementById('ph-text');
 
         btn.disabled = true;
-        btn.innerText = "AI is sketching...";
         loadWrap.style.display = "block";
         img.style.display = "none";
-        phText.style.display = "none";
 
         let progress = 0;
         const barInterval = setInterval(() => {
@@ -242,17 +265,12 @@
         try {
             const response = await fetch("https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4", {
                 method: "POST",
-                headers: {
-                    "Authorization": "Bearer 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",
-                    "Content-Type": "application/json"
-                },
+                headers: { "Authorization": "Bearer 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", "Content-Type": "application/json" },
                 body: JSON.stringify({ inputs: prompt })
             });
 
-            if(!response.ok) throw new Error("Hugging Face API failed");
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
-
             img.src = url;
             img.onload = async () => {
                 clearInterval(barInterval);
@@ -263,43 +281,30 @@
                     img.style.display = "block";
                     await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
                     await addDoc(collection(db, "creations"), { uid: currentUser.uid, url: url, createdAt: serverTimestamp() });
+                    btn.disabled = false;
                     const snap = await getDoc(doc(db, "users", currentUser.uid));
                     updateUI(snap.data());
-                    btn.disabled = false;
-                    btn.innerText = "Create Masterpiece (5 Credits)";
                 }, 500);
             };
-        } catch (e) {
-            clearInterval(barInterval);
-            alert("Error: " + e.message);
-            btn.disabled = false;
-            loadWrap.style.display = "none";
-        }
+        } catch (e) { alert("Error!"); btn.disabled = false; loadWrap.style.display = "none"; }
     };
 
-    // --- HELPERS ---
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.view-section, .nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(tab + '-view').classList.add('active');
+        document.getElementById('nav-' + tab).classList.add('active');
+        if(tab === 'gallery') loadGallery();
+    };
+
     window.selectAvatar = (url, el) => {
         selectedPfpUrl = url;
         document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected'));
         el.classList.add('selected');
     };
 
-    window.handleCustomPfp = (event) => {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            selectedPfpUrl = e.target.result;
-            const btn = document.querySelector('.add-pfp-btn');
-            btn.innerHTML = `<img src="${selectedPfpUrl}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-            selectAvatar(selectedPfpUrl, btn);
-        };
-        reader.readAsDataURL(file);
-    };
-
     window.saveProfile = async () => {
         const name = document.getElementById('setup-name').value.trim();
-        if(!name || !selectedPfpUrl) return alert("Complete your profile!");
+        if(!name || !selectedPfpUrl) return alert("Pick pfp and name!");
         await setDoc(doc(db, "users", currentUser.uid), { displayName: name, pfp: selectedPfpUrl, credits: 10 }, { merge: true });
         location.reload();
     };
@@ -309,27 +314,22 @@
         document.getElementById('overlay').classList.toggle('active');
     };
 
-    function initChat() {
-        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(50)), (snap) => {
-            const display = document.getElementById('chat-display');
-            display.innerHTML = "";
-            snap.docs.reverse().forEach(doc => {
-                const m = doc.data();
-                display.innerHTML += `<div class="msg-bubble"><img src="${m.pfp}" style="width:32px; height:32px; border-radius:50%; object-fit:cover;"><div class="msg-content"><span class="msg-user">${m.name}</span>${m.text}</div></div>`;
-            });
-            display.scrollTop = display.scrollHeight;
-        });
+    async function loadGallery() {
+        const gallery = document.getElementById('user-gallery');
+        const snap = await getDocs(query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc")));
+        gallery.innerHTML = "";
+        snap.forEach(doc => { gallery.innerHTML += `<div class="gallery-item"><img src="${doc.data().url}"></div>`; });
     }
 
-    function initLeaderboard() {
-        onSnapshot(query(collection(db, "users"), orderBy("credits", "desc"), limit(10)), (snap) => {
-            const list = document.getElementById('leaderboard-list');
-            list.innerHTML = "";
-            let rank = 1;
-            snap.forEach(doc => {
-                const u = doc.data();
-                list.innerHTML += `<div class="leader-item"><span class="leader-rank">#${rank++}</span><img src="${u.pfp}" style="width:28px; height:28px; border-radius:50%; object-fit:cover;"><span class="leader-name">${u.displayName}</span><b class="leader-score">${u.credits}⚡</b></div>`;
+    function initChat() {
+        onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(50)), (snap) => {
+            const d = document.getElementById('chat-display');
+            d.innerHTML = "";
+            snap.docs.reverse().forEach(doc => {
+                const m = doc.data();
+                d.innerHTML += `<div class="msg-bubble"><img src="${m.pfp}" style="width:30px;height:30px;border-radius:50%"><div class="msg-content"><span class="msg-user">${m.name}</span>${m.text}</div></div>`;
             });
+            d.scrollTop = d.scrollHeight;
         });
     }
 
@@ -339,15 +339,6 @@
         await addDoc(collection(db, "chat"), { uid: currentUser.uid, name: document.getElementById('nav-user-name').innerText, pfp: document.getElementById('nav-pfp').src, text: input.value, createdAt: serverTimestamp() });
         input.value = "";
     };
-
-    async function loadGallery() {
-        const gallery = document.getElementById('user-gallery');
-        const snap = await getDocs(query(collection(db, "creations"), where("uid", "==", currentUser.uid), orderBy("createdAt", "desc")));
-        gallery.innerHTML = "";
-        snap.forEach(doc => {
-            gallery.innerHTML += `<div class="gallery-item"><img src="${doc.data().url}"></div>`;
-        });
-    }
 </script>
 </body>
 </html>
