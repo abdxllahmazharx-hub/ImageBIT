@@ -209,12 +209,15 @@
         wheel.style.transform = `rotate(${totalRotation}deg)`;
 
         setTimeout(async () => {
-    const finalAngle = (totalRotation % 360);
+    const segmentSize = 360 / 6; // 6 slices
+    const finalAngle = totalRotation % 360;
 
-    // Correct order based on your SVG layout
+    // Because pointer is at top (0deg visually)
+    const adjustedAngle = (360 - finalAngle + 90) % 360;
+
+    const prizeIndex = Math.floor(adjustedAngle / segmentSize);
+
     const prizes = [10, 5, 20, 1, 50, 3];
-
-    const prizeIndex = Math.floor(((360 - finalAngle + 30) % 360) / 60);
     const winAmount = prizes[prizeIndex];
 
     await updateDoc(doc(db, "users", currentUser.uid), {
@@ -314,4 +317,5 @@
 </script>
 </body>
 </html>
+
 
