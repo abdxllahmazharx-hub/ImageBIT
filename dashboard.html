@@ -251,29 +251,21 @@
     };
 
     window.payWithStripe = (amount) => {
-        let baseUrl = "";
-        if(amount === 0.59) baseUrl = "https://buy.stripe.com/28E28qezj2I7agd25k5gc02";
-        if(amount === 1.99) baseUrl = "https://buy.stripe.com/14A4gygHraaz2NL25k5gc01";
-        if(amount === 6.99) baseUrl = "https://buy.stripe.com/7sY4gy9eZbeD885dO25gc00";
-
-        if(baseUrl && currentUser) {
-            // Updated to pass UID so VPS knows who paid
-            const finalUrl = `${baseUrl}?client_reference_id=${currentUser.uid}`;
-            window.location.href = finalUrl;
-        }
+        let url = "";
+        if(amount === 0.59) url = "https://buy.stripe.com/28E28qezj2I7agd25k5gc02";
+        if(amount === 1.99) url = "https://buy.stripe.com/14A4gygHraaz2NL25k5gc01";
+        if(amount === 6.99) url = "https://buy.stripe.com/7sY4gy9eZbeD885dO25gc00";
+        if(url) window.location.href = url;
     };
 
     window.handleDonate = (val) => {
-        let baseUrl = "";
-        if(val === 1) baseUrl = "https://buy.stripe.com/your_1_dollar_link";
-        if(val === 5) baseUrl = "https://buy.stripe.com/your_5_dollar_link";
-        if(val === 20) baseUrl = "https://buy.stripe.com/your_20_dollar_link";
-        if(val === 100) baseUrl = "https://buy.stripe.com/your_100_dollar_link";
-
-        if(baseUrl && currentUser) {
-            const finalUrl = `${baseUrl}?client_reference_id=${currentUser.uid}`;
-            window.location.href = finalUrl;
-        }
+        let url = "";
+        // REPLACE THESE with your real Stripe Donate links
+        if(val === 1) url = "https://buy.stripe.com/your_1_dollar_link";
+        if(val === 5) url = "https://buy.stripe.com/your_5_dollar_link";
+        if(val === 20) url = "https://buy.stripe.com/your_20_dollar_link";
+        if(val === 100) url = "https://buy.stripe.com/your_100_dollar_link";
+        if(url) window.location.href = url;
     };
 
     window.addEventListener('click', () => {
