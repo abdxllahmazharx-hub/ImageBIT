@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ImageBIT AI | v4.2 PRO</title>
+    <title>ImageBIT AI | v4.3 PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #ff2e88; --primary-dark: #000000; --accent: #3b82f6; --bg: #f8fafc; }
+        :root { --primary: #ff2e88; --dark: #000000; --accent: #3b82f6; --bg: #f8fafc; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: #1e293b; padding-bottom: 90px; overflow-x: hidden; }
 
@@ -19,41 +19,37 @@
         
         .trigger-btn { position: fixed; top: 15px; z-index: 1100; cursor: pointer; background: white; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: 0.2s; }
         .gift-trigger { left: 20px; font-size: 20px; }
-        .wheel-trigger { left: 75px; font-size: 22px; border: 2px solid #ffd700; }
+        .wheel-trigger { left: 75px; font-size: 22px; border: 2px solid #ffd700; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); } }
 
         .sidebar { position: fixed; top: 0; left: -380px; width: 340px; height: 100%; background: white; z-index: 1102; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); padding: 100px 20px; border-right: 1px solid #e2e8f0; }
         .sidebar.open { left: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 1101; display: none; backdrop-filter: blur(4px); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1101; display: none; backdrop-filter: blur(5px); }
         .overlay.active { display: block; }
 
-        /* --- GRAPHIC SPIN WHEEL --- */
-        .wheel-box { position: relative; width: 280px; height: 280px; margin: 20px auto; border-radius: 50%; border: 10px solid #2d3436; box-shadow: 0 0 30px rgba(0,0,0,0.15); overflow: hidden; background: #2d3436; }
-        .wheel-inner { width: 100%; height: 100%; border-radius: 50%; position: relative; transition: transform 4s cubic-bezier(0.1, 0, 0.1, 1); background: conic-gradient(
-            #ff2e88 0deg 60deg, #3b82f6 60deg 120deg, #ffd700 120deg 180deg, 
-            #10b981 180deg 240deg, #8b5cf6 240deg 300deg, #ff6b6b 300deg 360deg
-        ); }
-        .wheel-inner span { position: absolute; width: 50%; height: 50%; transform-origin: bottom right; top: 0; left: 0; display: flex; align-items: center; justify-content: center; color: white; font-weight: 900; font-size: 14px; padding-left: 20px; }
-        /* Label Rotations */
-        .s1 { transform: rotate(30deg); } .s2 { transform: rotate(90deg); } .s3 { transform: rotate(150deg); }
-        .s4 { transform: rotate(210deg); } .s5 { transform: rotate(270deg); } .s6 { transform: rotate(330deg); }
-        .wheel-pointer { position: absolute; top: -5px; left: 50%; transform: translateX(-50%); z-index: 20; font-size: 30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-
-        /* --- CLASSIC LEADERBOARD (Restored) --- */
+        /* --- NEW GRAPHIC SPIN WHEEL --- */
+        .wheel-container { position: relative; width: 280px; height: 280px; margin: 20px auto; }
+        #main-wheel { width: 100%; height: 100%; transition: transform 5s cubic-bezier(0.15, 0, 0.15, 1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2)); }
+        .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); z-index: 10; font-size: 35px; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3)); }
+        
+        /* --- LEADERBOARD (Classic Style) --- */
         .leaderboard { background: white; border-radius: 24px; border: 1px solid #e2e8f0; padding: 20px; height: 500px; overflow-y: auto; }
-        .leader-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #f8fafc; }
+        .leader-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .leader-rank { font-weight: 900; color: var(--primary); min-width: 25px; font-size: 14px; }
-        .leader-pfp { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
-        .leader-name { flex: 1; font-size: 13px; font-weight: 700; color: #1e293b; }
-        .leader-score { font-size: 10px; background: #fff1f6; padding: 3px 8px; border-radius: 6px; font-weight: 800; color: var(--primary); }
+        .leader-pfp { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #eee; }
+        .leader-name { flex: 1; font-size: 13px; font-weight: 700; color: #334155; }
+        .leader-score { font-size: 10px; background: #fff1f6; padding: 4px 8px; border-radius: 6px; font-weight: 800; color: var(--primary); }
 
-        /* --- BOTTOM NAV (Darker/Bigger Active) --- */
-        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 35px; border-radius: 40px; display: flex; gap: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); z-index: 1000; border: 1px solid #eee; }
-        .nav-item { cursor: pointer; font-size: 24px; opacity: 0.3; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #64748b; }
-        .nav-item.active { opacity: 1; transform: scale(1.35); color: var(--primary-dark); font-weight: bold; }
+        /* --- BOTTOM NAV (Dark/Big Active) --- */
+        .bottom-nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: white; padding: 12px 35px; border-radius: 40px; display: flex; gap: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.12); z-index: 1000; border: 1px solid #eee; }
+        .nav-item { cursor: pointer; font-size: 24px; opacity: 0.3; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); color: #64748b; }
+        .nav-item.active { opacity: 1; transform: scale(1.4); color: var(--dark); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
 
         .view-section { display: none; width: 100%; max-width: 900px; margin: 110px auto 0; padding: 0 20px; }
         .view-section.active { display: block; }
-        .btn-gen { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 46, 136, 0.3); }
+        .btn-gen { width: 100%; background: linear-gradient(90deg, #ff2e88, #ff6b6b); color: white; padding: 16px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 15px rgba(255, 46, 136, 0.3); transition: 0.3s; }
+        .btn-gen:active { transform: scale(0.98); }
+        .btn-gen:disabled { background: #cbd5e1; box-shadow: none; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -61,34 +57,45 @@
 <div class="top-bar">
     <div class="user-info">
         <img src="" id="nav-pfp" class="user-pfp">
-        <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.2 PRO</span></div>
+        <div><div class="user-name" id="nav-user-name">...</div><span class="pro-label">v4.3 PRO</span></div>
     </div>
-    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:6px 15px; border-radius:12px;">... Credits</div>
+    <div id="cred-display" style="font-weight:900; color:var(--primary); background:rgba(255,46,136,0.1); padding:8px 16px; border-radius:12px;">... Credits</div>
 </div>
 
 <div class="trigger-btn gift-trigger" onclick="openRewards()">🎁</div>
 <div class="trigger-btn wheel-trigger" onclick="openWheel()">🎡</div>
-
 <div class="overlay" id="overlay" onclick="closeSidebars()"></div>
 
 <div class="sidebar" id="sidebar-rewards">
     <div style="text-align: center;">
         <h2 style="font-weight:800; margin-bottom:10px;">Daily Gift</h2>
-        <div style="font-size: 60px; margin: 20px 0;">💰</div>
-        <p id="timer-display" style="font-size: 12px; color: #64748b; margin-bottom: 20px;">Checking status...</p>
-        <button class="btn-gen" id="claim-btn" onclick="claimReward()">Collect Credits</button>
+        <div style="font-size: 60px; margin: 20px 0; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1));">🎁</div>
+        <p id="timer-display" style="font-size: 12px; color: #64748b; margin-bottom: 25px;">Checking reward status...</p>
+        <button class="btn-gen" id="claim-btn" onclick="claimReward()">Collect +5 Credits</button>
     </div>
 </div>
 
 <div class="sidebar" id="sidebar-wheel">
     <div style="text-align: center;">
         <h2 style="font-weight: 800;">Lucky Spinner</h2>
-        <div class="wheel-box">
-            <div class="wheel-pointer">📍</div>
-            <div class="wheel-inner" id="main-wheel">
-                <span class="s1">5⚡</span><span class="s2">10⚡</span><span class="s3">1⚡</span>
-                <span class="s4">20⚡</span><span class="s5">5⚡</span><span class="s6">JACKPOT</span>
-            </div>
+        <div class="wheel-container">
+            <div class="wheel-pointer">▼</div>
+            <svg id="main-wheel" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="48" fill="#2d3436" stroke="#ffd700" stroke-width="2"/>
+                <path d="M50 50 L100 50 A50 50 0 0 1 75 93.3 Z" fill="#ff2e88" />
+                <path d="M50 50 L75 93.3 A50 50 0 0 1 25 93.3 Z" fill="#3b82f6" />
+                <path d="M50 50 L25 93.3 A50 50 0 0 1 0 50 Z" fill="#10b981" />
+                <path d="M50 50 L0 50 A50 50 0 0 1 25 6.7 Z" fill="#ffd700" />
+                <path d="M50 50 L25 6.7 A50 50 0 0 1 75 6.7 Z" fill="#8b5cf6" />
+                <path d="M50 50 L75 6.7 A50 50 0 0 1 100 50 Z" fill="#ff6b6b" />
+                <circle cx="50" cy="50" r="5" fill="white" />
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(30 50 50)">5⚡</text>
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(90 50 50)">10⚡</text>
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(150 50 50)">1⚡</text>
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(210 50 50)">20⚡</text>
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(270 50 50)">5⚡</text>
+                <text x="70" y="55" fill="white" font-size="5" font-weight="900" transform="rotate(330 50 50)">WIN</text>
+            </svg>
         </div>
         <button class="btn-gen" id="spin-btn" onclick="spinWheel()">SPIN FOR LUCK</button>
         <p id="wheel-timer" style="font-size: 11px; margin-top: 15px; color: #94a3b8;"></p>
@@ -96,33 +103,33 @@
 </div>
 
 <div id="create-view" class="view-section active">
-    <div style="background:white; padding:30px; border-radius:28px; border:1px solid #e2e8f0;">
-        <input type="text" id="p-input" style="width:100%; padding:18px; border-radius:16px; border:1px solid #e2e8f0; margin-bottom:20px; outline:none;" placeholder="Type your imagination...">
-        <button class="btn-gen" id="gen-btn" onclick="generate()">Generate AI Art (5 Credits)</button>
+    <div style="background:white; padding:30px; border-radius:30px; border:1px solid #e2e8f0;">
+        <input type="text" id="p-input" style="width:100%; padding:18px; border-radius:18px; border:1px solid #e2e8f0; margin-bottom:20px; outline:none;" placeholder="What's on your mind?">
+        <button class="btn-gen" id="gen-btn" onclick="generate()">Create Masterpiece (5 Credits)</button>
         
-        <div id="loading-wrap" style="display:none; margin-top:20px;">
-            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; color:var(--accent);"><span>RENDERING...</span><span id="load-perc">0%</span></div>
-            <div style="width:100%; height:8px; background:#e2e8f0; border-radius:10px; overflow:hidden; margin-top:5px;"><div id="bar-fill" style="width:0%; height:100%; background:var(--accent); transition:0.3s;"></div></div>
+        <div id="loading-wrap" style="display:none; margin-top:25px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800; color:var(--accent);"><span>GENERATING...</span><span id="load-perc">0%</span></div>
+            <div style="width:100%; height:10px; background:#e2e8f0; border-radius:10px; overflow:hidden; margin-top:8px;"><div id="bar-fill" style="width:0%; height:100%; background:var(--accent); transition:0.3s;"></div></div>
         </div>
 
-        <div style="width:100%; aspect-ratio:1/1; background:#f1f5f9; border-radius:24px; margin-top:25px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px dashed #cbd5e1;">
+        <div style="width:100%; aspect-ratio:1/1; background:#f8fafc; border-radius:24px; margin-top:25px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:2px dashed #cbd5e1;">
             <img src="" id="out-img" style="width:100%; height:100%; object-fit:cover; display:none;">
-            <div id="ph-text" style="text-align:center; color:#94a3b8;"><p style="font-size:30px;">🎨</p><p style="font-weight:700;">Ready to Create</p></div>
+            <div id="ph-text" style="text-align:center; color:#94a3b8;"><p style="font-size:40px;">✨</p><p style="font-weight:700;">Your Art Will Appear Here</p></div>
         </div>
     </div>
 </div>
 
 <div id="chat-view" class="view-section">
-    <div style="display:grid; grid-template-columns: 1fr 320px; gap:20px;">
-        <div style="background:white; border-radius:24px; border:1px solid #e2e8f0; height:500px; display:flex; flex-direction:column; overflow:hidden;">
-            <div id="chat-display" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:#fafafa;"></div>
+    <div style="display:grid; grid-template-columns: 1fr 340px; gap:25px;">
+        <div style="background:white; border-radius:28px; border:1px solid #e2e8f0; height:500px; display:flex; flex-direction:column; overflow:hidden;">
+            <div id="chat-display" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; background:#fafafa;"></div>
             <div style="padding:15px; display:flex; gap:10px; border-top:1px solid #eee; background:white;">
-                <input type="text" id="chat-input" style="flex:1; padding:12px; border:1px solid #ddd; border-radius:15px; outline:none;" placeholder="Chat with creators...">
-                <button onclick="sendChat()" class="btn-gen" style="width:auto; padding:0 20px;">Send</button>
+                <input type="text" id="chat-input" style="flex:1; padding:12px; border:1px solid #e2e8f0; border-radius:15px; outline:none;" placeholder="Type a message...">
+                <button onclick="sendChat()" class="btn-gen" style="width:auto; padding:0 25px;">Send</button>
             </div>
         </div>
         <div class="leaderboard">
-            <h3 style="font-size:14px; margin-bottom:15px; font-weight:800; color:#1e293b;">🏆 HALL OF FAME</h3>
+            <h3 style="font-size:15px; margin-bottom:20px; font-weight:800;">🏆 TOP CREATORS</h3>
             <div id="leader-list"></div>
         </div>
     </div>
@@ -169,19 +176,23 @@
         document.getElementById('cred-display').innerText = d.credits + " Credits";
     }
 
-    // --- SPIN LOGIC ---
+    // --- SPIN LOGIC (SVG FIXED) ---
+    let currentRotation = 0;
     window.spinWheel = async () => {
         const wheel = document.getElementById('main-wheel');
         const btn = document.getElementById('spin-btn');
         btn.disabled = true;
-        const deg = Math.floor(Math.random() * 360) + 2160; // 6 spins
-        wheel.style.transform = `rotate(${deg}deg)`;
+        
+        // Add random rotation between 2000 and 5000 degrees
+        const newSpin = Math.floor(Math.random() * 360) + 3600; 
+        currentRotation += newSpin;
+        wheel.style.transform = `rotate(${currentRotation}deg)`;
 
         setTimeout(async () => {
             await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(5), lastClaimed: serverTimestamp() });
-            alert("🎉 +5 Credits added to your account!");
+            alert("🎡 BOOM! 5 Credits Added!");
             location.reload();
-        }, 4100);
+        }, 5100);
     };
 
     function checkTimers(last) {
@@ -192,21 +203,21 @@
             if(diff <= 0) {
                 document.getElementById('claim-btn').disabled = false;
                 document.getElementById('spin-btn').disabled = false;
-                document.getElementById('timer-display').innerText = "Ready!";
+                document.getElementById('timer-display').innerText = "Ready to claim!";
                 clearInterval(intv);
             } else {
                 const h = Math.floor(diff/3600000);
                 const m = Math.floor((diff%3600000)/60000);
-                const timeStr = `${h}h ${m}m`;
+                const t = `${h}h ${m}m`;
                 document.getElementById('claim-btn').disabled = true;
                 document.getElementById('spin-btn').disabled = true;
-                document.getElementById('timer-display').innerText = `Locked for ${timeStr}`;
-                document.getElementById('wheel-timer').innerText = `Next spin in ${timeStr}`;
+                document.getElementById('timer-display').innerText = `Next reward in ${t}`;
+                document.getElementById('wheel-timer').innerText = `Locked: ${t}`;
             }
         }, 1000);
     }
 
-    // --- SOCIAL & UI ---
+    // --- NAVIGATION & SIDEBARS ---
     window.switchTab = (t) => {
         document.querySelectorAll('.view-section, .nav-item').forEach(e => e.classList.remove('active'));
         document.getElementById(t + '-view').classList.add('active');
@@ -221,7 +232,7 @@
         onSnapshot(query(collection(db, "chat"), orderBy("createdAt", "desc"), limit(30)), s => {
             document.getElementById('chat-display').innerHTML = s.docs.reverse().map(doc => {
                 const m = doc.data();
-                return `<div style="display:flex;gap:10px;"><img src="${m.pfp}" style="width:30px;height:30px;border-radius:50%"><div style="background:white;padding:10px;border-radius:15px;font-size:13px;border:1px solid #eee;"><b style="color:var(--primary);font-size:10px;">${m.name}</b><br>${m.text}</div></div>`;
+                return `<div style="display:flex;gap:10px;"><img src="${m.pfp}" style="width:32px;height:32px;border-radius:50%"><div style="background:white;padding:12px;border-radius:18px;font-size:13px;border:1px solid #eee;box-shadow:0 2px 5px rgba(0,0,0,0.02);"><b style="color:var(--primary);font-size:10px;">${m.name}</b><br>${m.text}</div></div>`;
             }).join('');
         });
 
@@ -255,7 +266,7 @@
             clearInterval(iv);
             await updateDoc(doc(db, "users", currentUser.uid), { credits: increment(-5) });
             btn.disabled = false;
-        } catch(e) { alert("Busy server. Try again!"); btn.disabled = false; }
+        } catch(e) { alert("Busy! Try again."); btn.disabled = false; }
     };
 
     window.sendChat = async () => {
