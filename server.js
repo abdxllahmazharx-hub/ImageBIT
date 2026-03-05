@@ -1,32 +1,36 @@
-const stripe = require('stripe')('whsec_280a7aa0fea3c07f1e688265b2cbc9344049b53ec94c7282248573c430af0f42');
+// server.js
 const express = require('express');
+const stripe = require('stripe')('whsec_280a7aa0fea3c07f1e688265b2cbc9344049b53ec94c7282248573c430af0f42');
 const path = require('path');
+
 const app = express();
+const PORT = process.env.PORT || 8080; // Railway sets the PORT automatically
 
-// Serve your HTML files
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html')); // Make sure index.html is in the same folder as server.js
-});
+// Serve all static files (HTML, images, CSS, JS) from the root folder
+app.use(express.static(path.join(__dirname)));
 
-// Stripe webhook
-app.post('/webhook', express.raw({ type: 'application/json' }), (request, response) => {
-  const sig = request.headers['stripe-signature'];
+// Stripe webhook endpoint
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const sig = req.headers['stripe-signature'];
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(request.body, sig, 'endpoint_secret_de_la_stripe');
+    event = stripe.webhooks.constructEvent(req.body, sig, 'endpoint_secret_de_la_stripe');
   } catch (err) {
-    return response.status(400).send(`Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     console.log(`Payment received! Add credits for: ${session.customer_details.email}`);
+    // TODO: add your database logic here
   }
 
-  response.json({ received: true });
+  res.json({ received: true });
 });
 
-// Use Railway’s assigned port
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+// Catch-all route for 404 (optional)
+app.use((req, res) => res.status(404).send('Page not found'));
+
+// Start the server
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
