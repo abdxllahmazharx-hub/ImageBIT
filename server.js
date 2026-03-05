@@ -3,10 +3,12 @@ const express = require('express');
 const path = require('path');
 const app = express();
 
-// Serve your static HTML/CSS/JS from the /main folder
-app.use(express.static(path.join(__dirname, 'main')));
+// Serve your HTML files
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html')); // Make sure index.html is in the same folder as server.js
+});
 
-// Stripe webhook route
+// Stripe webhook
 app.post('/webhook', express.raw({ type: 'application/json' }), (request, response) => {
   const sig = request.headers['stripe-signature'];
   let event;
@@ -25,11 +27,6 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (request, respon
   response.json({ received: true });
 });
 
-// Serve index.html on root
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'main', 'index.html'));
-});
-
-// Start the server
-const PORT = process.env.PORT || 4242;
+// Use Railway’s assigned port
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
